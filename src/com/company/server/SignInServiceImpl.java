@@ -1,27 +1,41 @@
 package com.company.server;
 
-import com.company.StatusCodes;
-import com.company.server.interfaces.SignInService;
+import com.company.SystemCodes;
+import com.company.server.Interfaces.SignInService;
+import com.company.server.Storage.User;
 
 import java.rmi.RemoteException;
+import java.util.Hashtable;
 
-public class RemoteServer implements SignInService {
-    @Override
-    public StatusCodes register(String username, String password, String[] tags) throws RemoteException {
-        if (!checkPasswordSecurity(password)) return StatusCodes.BAD_PASSWORD;
-        if (hasUsernameIncorrectFormat(username)) return StatusCodes.BAD_USERNAME;
+public class SignInServiceImpl implements SignInService {
 
+    // Storage
+    private Hashtable<String, User> storage = new Hashtable<String, User>();
 
-        return StatusCodes.SUCCESS;
+    public SignInServiceImpl(String filename) {
+        // TODO: get users from JSON
     }
 
     @Override
-    public StatusCodes login(String username, String password) throws RemoteException {
-        if (password.isEmpty()) return StatusCodes.BAD_PASSWORD;
-        if (hasUsernameIncorrectFormat(username)) return StatusCodes.BAD_USERNAME;
+    public String register(String username, String password, String[] tags) throws RemoteException {
+        System.out.println("Registration Attempt");
+        // Preconditions
+        if (!checkPasswordSecurity(password)) return SystemCodes.WEAK_PASSWORD;
+        if (hasUsernameIncorrectFormat(username)) return SystemCodes.MISSING_USERNAME;
+        if (storage.containsKey(username)) return SystemCodes.USER_ALREADY_EXISTS;
+
+        System.out.println("User registered successfully");
+        storage.put(username, new User(username, password, tags));
+        return SystemCodes.SUCCESS;
+    }
+
+    @Override
+    public String login(String username, String password) throws RemoteException {
+        if (password.isEmpty()) return SystemCodes.MISSING_PASSWORD;
+        if (hasUsernameIncorrectFormat(username)) return SystemCodes.MISSING_USERNAME;
 
 
-        return StatusCodes.SUCCESS;
+        return SystemCodes.SUCCESS;
     }
 
     @Override
