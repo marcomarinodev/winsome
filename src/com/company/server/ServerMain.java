@@ -2,25 +2,42 @@ package com.company.server;
 
 import com.company.server.Interfaces.SignInService;
 
+import java.io.IOException;
+import java.net.ServerSocket;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 public class ServerMain {
 
     public static int port = 12120;
     public static String serviceName = "RMISignIn";
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         System.out.println("Server is running...");
 
         // TODO: Extract info from the configuration file
 
-        try {
-            // Get the user list (from json)
-            SignInServiceImpl signInService = new SignInServiceImpl("storage.json");
+        // Get the user list (from json)
+        SignInServiceImpl signInService = new SignInServiceImpl("storage.json");
+        registrationRPC(signInService);
 
+        try (ServerSocket listener = new ServerSocket(12121)) {
+            ExecutorService pool = Executors.newCachedThreadPool();
+            while (true) {
+                pool.execute(new WorkerThread(listener.accept()));
+            }
+        }
+
+    }
+
+    private static void registrationRPC(SignInServiceImpl signInService) {
+        try {
             // Export the object
             SignInService stub = (SignInService) UnicastRemoteObject.exportObject(signInService, 0);
 

@@ -2,6 +2,8 @@ package com.company.client;
 
 import com.company.server.SignInHandler;
 
+import java.util.Scanner;
+
 public class ClientMain {
 
     public static int port = 12120;
@@ -13,8 +15,14 @@ public class ClientMain {
             System.exit(1);
         }
 
-        System.out.println(args[0]);
         handleOperations(args);
+
+        while (true) {
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("> ");
+            String[] newArgs = scanner.nextLine().split(" ");
+            handleOperations(newArgs);
+        }
 
     }
 

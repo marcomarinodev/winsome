@@ -22,10 +22,12 @@ public class SignInServiceImpl implements SignInService {
         // Preconditions
         if (!checkPasswordSecurity(password)) return SystemCodes.WEAK_PASSWORD;
         if (hasUsernameIncorrectFormat(username)) return SystemCodes.MISSING_USERNAME;
-        if (storage.containsKey(username)) return SystemCodes.USER_ALREADY_EXISTS;
+        synchronized (storage) {
+            if (storage.containsKey(username)) return SystemCodes.USER_ALREADY_EXISTS;
 
-        System.out.println("User registered successfully");
-        storage.put(username, new User(username, password, tags));
+            System.out.println("User registered successfully");
+            storage.put(username, new User(username, password, tags));
+        }
         return SystemCodes.SUCCESS;
     }
 
@@ -33,8 +35,7 @@ public class SignInServiceImpl implements SignInService {
     public String login(String username, String password) throws RemoteException {
         if (password.isEmpty()) return SystemCodes.MISSING_PASSWORD;
         if (hasUsernameIncorrectFormat(username)) return SystemCodes.MISSING_USERNAME;
-
-
+        
         return SystemCodes.SUCCESS;
     }
 
