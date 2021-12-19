@@ -30,7 +30,7 @@ public class ServerMain {
         try (ServerSocket listener = new ServerSocket(12121)) {
             ExecutorService pool = Executors.newCachedThreadPool();
             while (true) {
-                pool.execute(new WorkerThread(listener.accept()));
+                pool.execute(new WorkerThread(listener.accept(), signInService));
             }
         }
 

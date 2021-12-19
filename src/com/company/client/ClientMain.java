@@ -2,6 +2,9 @@ package com.company.client;
 
 import com.company.server.SignInHandler;
 
+import java.io.PrintWriter;
+import java.net.InetAddress;
+import java.net.Socket;
 import java.util.Scanner;
 
 public class ClientMain {
@@ -27,13 +30,30 @@ public class ClientMain {
     }
 
     public static void handleOperations(String[] args) {
-        if (args[0].equals("login" ) || args[0].equals("register")) {
+        if (args[0].equals("register")) {
             try {
                 SignInHandler signInHandler = new SignInHandler(args);
             } catch (Exception e) {
                 System.exit(1);
             }
+            return;
         }
+
+        InetAddress ip = null;
+        try {
+            ip = InetAddress.getByName("localhost");
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+
+        try (Socket socket = new Socket(ip.getHostAddress(), 12121)) {
+            String request = String.join(" ", args);
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+            out.println(request);
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+
     }
 
 }

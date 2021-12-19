@@ -4,13 +4,17 @@ import com.company.SystemCodes;
 import com.company.server.Interfaces.SignInService;
 import com.company.server.Storage.User;
 
+import java.net.Socket;
 import java.rmi.RemoteException;
-import java.util.Hashtable;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class SignInServiceImpl implements SignInService {
 
     // Storage
-    private Hashtable<String, User> storage = new Hashtable<String, User>();
+    private Map<String, User> storage = new ConcurrentHashMap<>();
+    private Map<String, Socket> loggedUsers = new ConcurrentHashMap<>();
 
     public SignInServiceImpl(String filename) {
         // TODO: get users from JSON
@@ -24,24 +28,10 @@ public class SignInServiceImpl implements SignInService {
         if (hasUsernameIncorrectFormat(username)) return SystemCodes.MISSING_USERNAME;
         synchronized (storage) {
             if (storage.containsKey(username)) return SystemCodes.USER_ALREADY_EXISTS;
-
             System.out.println("User registered successfully");
             storage.put(username, new User(username, password, tags));
         }
         return SystemCodes.SUCCESS;
-    }
-
-    @Override
-    public String login(String username, String password) throws RemoteException {
-        if (password.isEmpty()) return SystemCodes.MISSING_PASSWORD;
-        if (hasUsernameIncorrectFormat(username)) return SystemCodes.MISSING_USERNAME;
-        
-        return SystemCodes.SUCCESS;
-    }
-
-    @Override
-    public void logout(String username) throws RemoteException {
-
     }
 
     private boolean hasUsernameIncorrectFormat(String username) {
@@ -80,5 +70,25 @@ public class SignInServiceImpl implements SignInService {
             score += 2;
 
         return score;
+    }
+
+    public Map<String, User> getStorage() {
+        return storage;
+    }
+
+    public void addUser(User user) {
+        this.storage.put(user.getUsername(), user);
+    }
+
+    public Map<String, Socket> getLoggedUsers() {
+        return loggedUsers;
+    }
+
+    public void addLoggedUser(String username, Socket socket) {
+        this.loggedUsers.put(username, socket);
+    }
+
+    public void removeLoggedUser(String username) {
+        this.loggedUsers.remove(username);
     }
 }

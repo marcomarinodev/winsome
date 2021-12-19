@@ -3,6 +3,7 @@ package com.company.server;
 import com.company.SystemCodes;
 import com.company.client.ClientMain;
 import com.company.server.Interfaces.SignInService;
+import com.company.server.Storage.User;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -29,10 +30,6 @@ public class SignInHandler {
             if (operation.equals("register")) {
                 String result = signInService.register(username, password, tags.split(" ", -1));
                 SystemCodes.printOperationResult(result, "registration");
-            } else if (operation.equals("login")) {
-                signInService.login(username, password);
-            } else {
-                signInService.logout(username);
             }
 
         } catch (Exception e) {
@@ -42,7 +39,7 @@ public class SignInHandler {
 
     private Boolean checkArgs(String[] args) {
         this.operation = args[0];
-        if (operation == "logout") return true;
+        if (operation.equals("logout")) return true;
 
         if (args.length < 2) {
             SystemCodes.printOperationResult(SystemCodes.MISSING_USERNAME, "Sign Up/In");

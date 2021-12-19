@@ -13,16 +13,4 @@ public interface SignInService extends Remote {
      * @return an integer (200: success, 455: failure)
      */
     public String register(String username, String password, String[] tags) throws RemoteException;
-
-    /**
-     * @param username not empty username text
-     * @param password account's password
-     * @return an integer (200: success, 4:
-     */
-    public String login(String username, String password) throws RemoteException;
-
-    /**
-     * @param username not empty username text
-     */
-    public void logout(String username) throws RemoteException;
 }
