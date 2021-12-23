@@ -17,12 +17,11 @@ public class NIOHelper {
             byte[] receivedBytes = new byte[receivedLength];
             byteBuffer.get(receivedBytes);
             ret = new String(receivedBytes);
-
         } catch (IOException e) {
             System.out.println("ERROR");
-        } finally {
             return ret;
         }
+        return ret;
     }
 
     public static void writeResponse(String message, SocketChannel client) throws IOException {

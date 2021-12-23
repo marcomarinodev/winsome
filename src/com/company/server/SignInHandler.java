@@ -7,12 +7,14 @@ import com.company.server.Storage.User;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.ArrayList;
+
 
 public class SignInHandler {
     public String operation = "";
     public String username = "";
     public String password = "";
-    public String tags = "";
+    public ArrayList<String> tags;
 
     public SignInHandler(String[] args) throws Exception {
         // Preconditions
@@ -28,7 +30,7 @@ public class SignInHandler {
             SignInService signInService = (SignInService) registry.lookup(ClientMain.serviceName);
             // Invoke login/logout/register method based on operation
             if (operation.equals("register")) {
-                String result = signInService.register(username, password, tags.split(" ", -1));
+                String result = signInService.register(username, password, tags);
                 SystemCodes.printOperationResult(result, "registration");
             }
 
@@ -59,7 +61,13 @@ public class SignInHandler {
                 SystemCodes.printOperationResult(SystemCodes.MISSING_TAGS, "Sign Up/In");
                 return false;
             }
-            this.tags = args[3];
+
+            tags = new ArrayList<>();
+            int counter = 3;
+            while (counter < args.length) {
+                this.tags.add(args[counter]);
+                counter++;
+            }
         }
 
         return true;

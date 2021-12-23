@@ -1,18 +1,45 @@
 [
 {
+  "username": "andre1",
+  "encryptedPassword": "e57e4b1f198ce52179c79d238ef91ec35a502ef871685d8e7ae1358511a1626f",
+  "tags": [
+    "swift",
+    "c++",
+    "kotlin"
+  ],
+  "postIds": [],
+  "followers": [],
+  "followings": [
+    "ema1",
+    "marco1"
+  ]
+},
+{
+  "username": "ema1",
+  "encryptedPassword": "e57e4b1f198ce52179c79d238ef91ec35a502ef871685d8e7ae1358511a1626f",
+  "tags": [
+    "java",
+    "swift"
+  ],
+  "postIds": [],
+  "followers": [
+    "andre1"
+  ],
+  "followings": [
+    "marco1"
+  ]
+},
+{
   "username": "marco1",
   "encryptedPassword": "e57e4b1f198ce52179c79d238ef91ec35a502ef871685d8e7ae1358511a1626f",
   "tags": [
     "swift"
   ],
-  "postIds": []
-},
-{
-  "username": "giovy",
-  "encryptedPassword": "ad92a5f8b7a045e36d67700c59c7f485858f85298b70ab95647a8bf48949591f",
-  "tags": [
-    "engines"
+  "postIds": [],
+  "followers": [
+    "ema1",
+    "andre1"
   ],
-  "postIds": []
+  "followings": []
 }
 ]

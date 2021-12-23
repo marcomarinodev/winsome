@@ -4,19 +4,20 @@ import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
+import java.util.ArrayList;
 
 public class User {
     private final String username;
-    private String encryptedPassword;
-    private final String[] tags;
-    private String[] postIds;
+    private final String encryptedPassword;
+    private final ArrayList<String> tags;
+    private ArrayList<String> postIds = new ArrayList<>();
+    private ArrayList<String> followers = new ArrayList<>();
+    private ArrayList<String> followings = new ArrayList<>();
 
-    public User(String username, String password, String[] tags) {
+    public User(String username, String password, ArrayList<String> tags) {
         this.username = username;
         this.encryptedPassword = hashEncrypt(password);
         this.tags = tags;
-        this.postIds = new String[0];
     }
 
     public static String hashEncrypt(String password) {
@@ -60,12 +61,7 @@ public class User {
 
     @Override
     public String toString() {
-        return "User{" +
-                "username='" + username + '\'' +
-                ", encryptedPassword='" + encryptedPassword + '\'' +
-                ", tags=" + Arrays.toString(tags) +
-                ", postIds=" + Arrays.toString(postIds) +
-                '}';
+        return getUsername() + "\t\t" + " | " + tagsToString();
     }
 
     public String getUsername() {
@@ -76,12 +72,73 @@ public class User {
         return encryptedPassword;
     }
 
-    public String[] getTags() {
+    public ArrayList<String> getTags() {
         return tags;
     }
 
-    public String[] getPostIds() {
+    public String tagsToString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        int counter = 0;
+
+        for (String tag : getTags()) {
+            stringBuilder.append(tag).append(" ");
+            if (counter < getTags().size() - 1)
+                stringBuilder.append(", ");
+            counter++;
+        }
+
+        return stringBuilder.toString();
+    }
+
+    public ArrayList<String> getPostIds() {
         return postIds;
     }
 
+    public ArrayList<String> getFollowers() {
+        return followers;
+    }
+
+    public ArrayList<String> getFollowings() {
+        return followings;
+    }
+
+    public void setPostIds(ArrayList<String> postIds) {
+        this.postIds = postIds;
+    }
+
+    public boolean existsFollower(String follower) {
+        return this.followers.contains(follower);
+    }
+
+    public boolean addFollower(String follower) {
+        if (existsFollower(follower)) return false;
+        this.followers.add(follower);
+        return true;
+    }
+
+    public boolean removeFollower(String follower) {
+        if (this.followers.contains(follower)) {
+            this.followers.remove(follower);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean existsFollowing(String following) {
+        return this.followings.contains(following);
+    }
+
+    public boolean addFollowing(String following) {
+        if (existsFollowing(following)) return false;
+        this.followings.add(following);
+        return true;
+    }
+
+    public boolean removeFollowing(String following) {
+        if (this.followings.contains(following)) {
+            this.followings.remove(following);
+            return true;
+        }
+        return false;
+    }
 }

@@ -42,8 +42,6 @@ public class PersistentOperator {
             }
             jsonReader.endArray();
 
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         } finally {

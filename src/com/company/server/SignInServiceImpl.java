@@ -10,6 +10,7 @@ import com.company.server.Utils.PersistentOperator;
 import java.net.Socket;
 import java.rmi.RemoteException;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -20,15 +21,18 @@ public class SignInServiceImpl implements SignInService {
     private final Map<String, Post> posts;
     private final Map<String, Socket> loggedUsers = new ConcurrentHashMap<>();
 
-    public SignInServiceImpl() {
+    public SignInServiceImpl(String mex) {
         System.out.println("Retrieving users from users.json");
         Pair<Map<String,User>, Map<String, Post>> pair = PersistentOperator.persistentRead("users.json", "posts.json");
         storage = pair.getLeft();
         posts = pair.getRight();
+        for (Map.Entry<String, User> user: storage.entrySet()) {
+            System.out.println(user.toString());
+        }
     }
 
     @Override
-    public String register(String username, String password, String[] tags) throws RemoteException {
+    public String register(String username, String password, ArrayList<String> tags) throws RemoteException {
         System.out.println("Registration Attempt");
         // Preconditions
         if (!checkPasswordSecurity(password)) return SystemCodes.WEAK_PASSWORD;
@@ -93,6 +97,8 @@ public class SignInServiceImpl implements SignInService {
     public Map<String, Socket> getLoggedUsers() {
         return loggedUsers;
     }
+
+    public Map<String, Post> getPosts() { return posts; }
 
     public void addLoggedUser(String username, Socket socket) {
         this.loggedUsers.put(username, socket);

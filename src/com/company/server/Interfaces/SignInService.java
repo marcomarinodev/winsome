@@ -4,6 +4,7 @@ import com.company.SystemCodes;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 
 public interface SignInService extends Remote {
     /**
@@ -12,5 +13,5 @@ public interface SignInService extends Remote {
      * @param tags content tags (max 5)
      * @return an integer (200: success, 455: failure)
      */
-    public String register(String username, String password, String[] tags) throws RemoteException;
+    public String register(String username, String password, ArrayList<String> tags) throws RemoteException;
 }

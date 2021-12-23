@@ -4,7 +4,6 @@ import com.company.server.Interfaces.SignInService;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
@@ -14,9 +13,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -27,7 +24,6 @@ public class ServerMain {
     public static final int timeout = 10000;
     public static final int bufferSize = 32 * 1024;
     static ExecutorService pool = Executors.newCachedThreadPool();
-    public static Set<SelectionKey> readingKeys = ConcurrentHashMap.newKeySet();
 
     public static void main(String[] args) {
         System.out.println("Server is running...");
@@ -51,7 +47,6 @@ public class ServerMain {
                 selector.select();
                 // Get ready keys
                 Set<SelectionKey> readyKeys = selector.selectedKeys();
-
                 Iterator<SelectionKey> iterator = readyKeys.iterator();
 
                 while (iterator.hasNext()) {
@@ -69,8 +64,6 @@ public class ServerMain {
                             client.configureBlocking(false);
                             // Register client socket channel in order to read requests
                             client.register(selector, SelectionKey.OP_READ);
-                            ByteBuffer buffer = ByteBuffer.allocate(bufferSize);
-                            key.attach(buffer);
                             continue;
                         }
 
@@ -78,8 +71,17 @@ public class ServerMain {
                             System.out.println("Client has a request");
                             // I have to assign this key to a thread inside the thread pool
                             key.cancel();
-                            pool.execute(new WorkerThread(key, signInService));
+                            pool.execute(new ReaderThread(key, signInService, selector));
                             continue;
+                        }
+
+                        if (key.isWritable()) {
+                            System.out.println("Server wants to respond");
+                            key.cancel();
+                            pool.execute(new WriterThread(key,
+                                    (String) key.attachment(),
+                                    (SocketChannel) key.channel(),
+                                    selector));
                         }
                     } catch (IOException e) {
                         System.err.println("Error while serving requests: " + e.getMessage());
@@ -96,7 +98,7 @@ public class ServerMain {
     }
 
     private static SignInServiceImpl getInService() {
-        SignInServiceImpl signInService = new SignInServiceImpl();
+        SignInServiceImpl signInService = new SignInServiceImpl("");
         registrationRPC(signInService);
         return signInService;
     }
