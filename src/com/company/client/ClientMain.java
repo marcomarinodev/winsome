@@ -72,15 +72,13 @@ public class ClientMain {
             int receivedLength = buffer.getInt();
             byte[] receivedBytes = new byte[receivedLength];
             buffer.get(receivedBytes);
-            System.out.println("< " + new String(receivedBytes));
+            System.out.println(new String(receivedBytes));
         } catch (IOException e) {
             System.err.println(e);
         }
 
         return false;
-
     }
-
 }
 
 /*

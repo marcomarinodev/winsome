@@ -27,16 +27,13 @@ public class ServerMain {
     public static final int timeout = 10000;
     public static final int bufferSize = 32 * 1024;
     static ExecutorService pool = Executors.newCachedThreadPool();
-    public static Map<SelectionKey, Integer> readingKeys = new ConcurrentHashMap<>();
+    public static Set<SelectionKey> readingKeys = ConcurrentHashMap.newKeySet();
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         System.out.println("Server is running...");
-
         // TODO: Extract info from the configuration file
-        // Get the user list (from json)
 
-        SignInServiceImpl signInService = new SignInServiceImpl("storage.json");
-        registrationRPC(signInService);
+        SignInServiceImpl signInService = getInService();
 
         try (ServerSocketChannel serverSocket = ServerSocketChannel.open();
                 Selector selector = Selector.open()) {
@@ -48,15 +45,13 @@ public class ServerMain {
             // Register the channel to selector
             serverSocket.register(selector, SelectionKey.OP_ACCEPT);
             System.out.println("Server started");
-            // Prefixed size buffer
-            ByteBuffer byteBuffer = ByteBuffer.allocate(bufferSize);
 
             while (true) {
                 // Waiting for requests
                 selector.select();
                 // Get ready keys
                 Set<SelectionKey> readyKeys = selector.selectedKeys();
-                readyKeys.removeIf(key -> readingKeys.containsKey(key));
+
                 Iterator<SelectionKey> iterator = readyKeys.iterator();
 
                 while (iterator.hasNext()) {
@@ -74,13 +69,16 @@ public class ServerMain {
                             client.configureBlocking(false);
                             // Register client socket channel in order to read requests
                             client.register(selector, SelectionKey.OP_READ);
+                            ByteBuffer buffer = ByteBuffer.allocate(bufferSize);
+                            key.attach(buffer);
                             continue;
                         }
 
                         if (key.isReadable()) {
                             System.out.println("Client has a request");
                             // I have to assign this key to a thread inside the thread pool
-                            pool.execute(new WorkerThread(key, signInService, byteBuffer));
+                            key.cancel();
+                            pool.execute(new WorkerThread(key, signInService));
                             continue;
                         }
                     } catch (IOException e) {
@@ -95,6 +93,12 @@ public class ServerMain {
             System.exit(1);
         }
 
+    }
+
+    private static SignInServiceImpl getInService() {
+        SignInServiceImpl signInService = new SignInServiceImpl();
+        registrationRPC(signInService);
+        return signInService;
     }
 
     protected static void registrationRPC(SignInServiceImpl signInService) {

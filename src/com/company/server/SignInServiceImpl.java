@@ -2,7 +2,10 @@ package com.company.server;
 
 import com.company.SystemCodes;
 import com.company.server.Interfaces.SignInService;
+import com.company.server.Storage.Post;
 import com.company.server.Storage.User;
+import com.company.server.Utils.Pair;
+import com.company.server.Utils.PersistentOperator;
 
 import java.net.Socket;
 import java.rmi.RemoteException;
@@ -13,11 +16,15 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SignInServiceImpl implements SignInService {
 
     // Storage
-    private Map<String, User> storage = new ConcurrentHashMap<>();
-    private Map<String, Socket> loggedUsers = new ConcurrentHashMap<>();
+    private final Map<String, User> storage;
+    private final Map<String, Post> posts;
+    private final Map<String, Socket> loggedUsers = new ConcurrentHashMap<>();
 
-    public SignInServiceImpl(String filename) {
-        // TODO: get users from JSON
+    public SignInServiceImpl() {
+        System.out.println("Retrieving users from users.json");
+        Pair<Map<String,User>, Map<String, Post>> pair = PersistentOperator.persistentRead("users.json", "posts.json");
+        storage = pair.getLeft();
+        posts = pair.getRight();
     }
 
     @Override
@@ -29,8 +36,11 @@ public class SignInServiceImpl implements SignInService {
         synchronized (storage) {
             if (storage.containsKey(username)) return SystemCodes.USER_ALREADY_EXISTS;
             System.out.println("User registered successfully");
-            storage.put(username, new User(username, password, tags));
+            addUser(new User(username, password, tags));
         }
+
+        PersistentOperator.persistentWrite(storage, posts, "users.json", "posts.json");
+
         return SystemCodes.SUCCESS;
     }
 

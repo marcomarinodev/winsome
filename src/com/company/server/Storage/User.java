@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 
 public class User {
     private final String username;
@@ -55,6 +56,16 @@ public class User {
         }
 
         return hexString.toString();
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "username='" + username + '\'' +
+                ", encryptedPassword='" + encryptedPassword + '\'' +
+                ", tags=" + Arrays.toString(tags) +
+                ", postIds=" + Arrays.toString(postIds) +
+                '}';
     }
 
     public String getUsername() {
