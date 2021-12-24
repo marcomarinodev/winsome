@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class PersistentOperator {
 
-    public static Pair<Map<String, User>, Map<String, Post>> persistentRead(
+    public static synchronized Pair<Map<String, User>, Map<String, Post>> persistentRead(
             String usersFilename,
             String postsFilename) {
         Map<String, User> storage = new ConcurrentHashMap<>();
@@ -49,7 +49,7 @@ public class PersistentOperator {
         }
     }
 
-    public static void persistentWrite(Map<String, User> storage,
+    public static synchronized void persistentWrite(Map<String, User> storage,
                                        Map<String, Post> posts,
                                        String usersFilename,
                                        String postsFilename) {

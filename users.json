@@ -23,7 +23,8 @@
   ],
   "postIds": [],
   "followers": [
-    "andre1"
+    "andre1",
+    "marco1"
   ],
   "followings": [
     "marco1"
@@ -40,6 +41,8 @@
     "ema1",
     "andre1"
   ],
-  "followings": []
+  "followings": [
+    "ema1"
+  ]
 }
 ]

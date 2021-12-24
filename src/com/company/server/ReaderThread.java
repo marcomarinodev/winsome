@@ -85,10 +85,18 @@ public class ReaderThread implements Runnable {
         User loggedUserObj = signInService.getStorage().get(loggedUser);
         User toFollowUserObj = signInService.getStorage().get(toFollowUser);
 
-        // Add following to loggedUserObj
-        loggedUserObj.addFollowing(toFollowUser);
-        // Add follower to toFollowUser
-        toFollowUserObj.addFollower(loggedUser);
+        // A user cannot follow himself
+        if (loggedUser.equals(toFollowUser)) return "< You cannot follow yourself!";
+
+        synchronized (signInService.getStorage()) {
+            // If logged user already follows toFollowUser
+            if (loggedUserObj.existsFollowing(toFollowUser)) return "< You already follow " + toFollowUser;
+
+            // Add following to loggedUserObj
+            loggedUserObj.addFollowing(toFollowUser);
+            // Add follower to toFollowUser
+            toFollowUserObj.addFollower(loggedUser);
+        }
 
         PersistentOperator.persistentWrite(
                 signInService.getStorage(),
@@ -100,7 +108,35 @@ public class ReaderThread implements Runnable {
     }
 
     private String performUnfollow(String[] splitReq) {
-        return "";
+        if (checkListArgsCount(splitReq)) return "< list has not enough parameters";
+        if (isUserLogged()) return "< You must login in order to do this operation";
+        if (!existsUser(splitReq[1])) return "< " + splitReq[1] + " does not exist";
+
+        String toUnfollowUser = splitReq[1];
+        String loggedUser = getKey(signInService.getLoggedUsers(), client.socket());
+        User loggedUserObj = signInService.getStorage().get(loggedUser);
+        User toUnfollowUserObj = signInService.getStorage().get(toUnfollowUser);
+
+        // A user cannot unfollow himself
+        if (loggedUser.equals(toUnfollowUser)) return "< You cannot unfollow yourself!";
+
+        synchronized(signInService.getStorage()) {
+            // If logged user follows toUnfollowUser
+            if (!loggedUserObj.existsFollowing(toUnfollowUser)) return "< You are not a follower of " + toUnfollowUser;
+
+            // Add following to loggedUserObj
+            loggedUserObj.removeFollowing(toUnfollowUser);
+            // Add follower to toFollowUser
+            toUnfollowUserObj.removeFollower(loggedUser);
+        }
+
+        PersistentOperator.persistentWrite(
+                signInService.getStorage(),
+                signInService.getPosts(),
+                "users.json",
+                "posts.json");
+
+        return "< now you're not following " + toUnfollowUser;
     }
 
     private String performListOperation(String[] splitReq) throws IOException {
@@ -136,7 +172,7 @@ public class ReaderThread implements Runnable {
         // TODO: following list of the logged user
     }
 
-    private void listUsers(String loggedUser, StringBuilder stringBuilder) {
+    private synchronized void listUsers(String loggedUser, StringBuilder stringBuilder) {
         stringBuilder.append("< \tUser\t|\tTag\n");
         stringBuilder.append("< —------------------------------------\n");
         ArrayList<String> loggedUserTags = signInService.getStorage().get(loggedUser).getTags();
@@ -172,39 +208,43 @@ public class ReaderThread implements Runnable {
             return "< Missing Credentials";
         }
 
-        // Check if exists a user entry inside logged user
-        if (signInService.getLoggedUsers().containsKey(splitReq[1])) {
-            if (signInService.getLoggedUsers().get(splitReq[1]) == client.socket()) {
-                return "< You're already logged in";
+        synchronized (signInService.getLoggedUsers()) {
+            // Check if exists a user entry inside logged user
+            if (signInService.getLoggedUsers().containsKey(splitReq[1])) {
+                if (signInService.getLoggedUsers().get(splitReq[1]) == client.socket()) {
+                    return "< You're already logged in";
+                } else {
+                    return "< There is a logged in user, you must log out from it";
+                }
             } else {
-                return "< There is a logged in user, you must log out from it";
-            }
-        } else {
-            if (signInService.getLoggedUsers().containsValue(client.socket())) {
-                return "< You're already logged in";
+                if (signInService.getLoggedUsers().containsValue(client.socket())) {
+                    return "< You're already logged in";
+                }
             }
         }
 
-        // I am sure that the client has sent a correct format request
-        if (signInService.getStorage().containsKey(splitReq[1])) {
+        synchronized (signInService.getStorage()) {
+            // I am sure that the client has sent a correct format request
+            if (signInService.getStorage().containsKey(splitReq[1])) {
 
-            String password = signInService.getStorage().get(splitReq[1]).getEncryptedPassword();
+                String password = signInService.getStorage().get(splitReq[1]).getEncryptedPassword();
 
-            if (User.hashEncrypt(splitReq[2]).equals(password)) {
-                System.out.println("User accepted");
-                signInService.addLoggedUser(splitReq[1], client.socket());
-                return "< " + splitReq[1] + " logged in";
+                if (User.hashEncrypt(splitReq[2]).equals(password)) {
+                    System.out.println("User accepted");
+                    signInService.addLoggedUser(splitReq[1], client.socket());
+                    return "< " + splitReq[1] + " logged in";
+                } else {
+                    System.out.println("Wrong Password");
+                    return "< Wrong Password";
+                }
             } else {
-                System.out.println("Wrong Password");
-                return "< Wrong Password";
+                System.out.println("User does not exists");
+                return "< Error " + splitReq[1] + " does not exists";
             }
-        } else {
-            System.out.println("User does not exists");
-            return "< Error " + splitReq[1] + " does not exists";
         }
     }
 
-    private String performLogout() throws IOException {
+    private synchronized String performLogout() throws IOException {
         if (signInService.getLoggedUsers().containsValue(client.socket())) {
             String key = getKey(signInService.getLoggedUsers(), client.socket());
             signInService.removeLoggedUser(key);
