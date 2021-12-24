@@ -77,7 +77,7 @@ public class ReaderThread implements Runnable {
 
     private String performFollow(String[] splitReq) {
         if (checkListArgsCount(splitReq)) return "< list has not enough parameters";
-        if (isUserLogged()) return "< You must login in order to do this operation";
+        if (!isUserLogged()) return "< You must login in order to do this operation";
         if (!existsUser(splitReq[1])) return "< " + splitReq[1] + " does not exist";
 
         String toFollowUser = splitReq[1];
@@ -109,7 +109,7 @@ public class ReaderThread implements Runnable {
 
     private String performUnfollow(String[] splitReq) {
         if (checkListArgsCount(splitReq)) return "< list has not enough parameters";
-        if (isUserLogged()) return "< You must login in order to do this operation";
+        if (!isUserLogged()) return "< You must login in order to do this operation";
         if (!existsUser(splitReq[1])) return "< " + splitReq[1] + " does not exist";
 
         String toUnfollowUser = splitReq[1];
@@ -141,7 +141,7 @@ public class ReaderThread implements Runnable {
 
     private String performListOperation(String[] splitReq) throws IOException {
         if (checkListArgsCount(splitReq)) return "< list has not enough parameters";
-        if (isUserLogged()) return "< You must login in order to do this operation";
+        if (!isUserLogged()) return "< You must login in order to do this operation";
 
         String loggedUser = getKey(signInService.getLoggedUsers(), client.socket());
         StringBuilder stringBuilder = new StringBuilder();
@@ -150,7 +150,6 @@ public class ReaderThread implements Runnable {
 
         switch (topic) {
             case "users" -> listUsers(loggedUser, stringBuilder);
-            case "followers" -> listFollowers(loggedUser, stringBuilder);
             case "following" -> listFollowing(loggedUser, stringBuilder);
             default -> notRecognizedTopic = true;
         }
@@ -160,24 +159,26 @@ public class ReaderThread implements Runnable {
         return stringBuilder.toString();
     }
 
-    private boolean isUserLogged() {
-        return !signInService.getLoggedUsers().containsValue(client.socket());
-    }
+    private synchronized void listFollowing(String loggedUser, StringBuilder stringBuilder) {
+        setHeaderList(stringBuilder);
+        User loggedUserObj = signInService.getStorage().get(loggedUser);
 
-    private void listFollowers(String loggedUser, StringBuilder stringBuilder) {
-        // TODO: list all logged user's followers
-    }
+        for (String username: loggedUserObj.getFollowings()) {
+            User followingUser = signInService.getStorage().get(username);
 
-    private void listFollowing(String loggedUser, StringBuilder stringBuilder) {
-        // TODO: following list of the logged user
+            stringBuilder.append("< " + followingUser.toString() + "\n");
+        }
     }
 
     private synchronized void listUsers(String loggedUser, StringBuilder stringBuilder) {
-        stringBuilder.append("< \tUser\t|\tTag\n");
-        stringBuilder.append("< —------------------------------------\n");
+        setHeaderList(stringBuilder);
         ArrayList<String> loggedUserTags = signInService.getStorage().get(loggedUser).getTags();
+        int founds = 0;
 
         for (Map.Entry<String, User> user: signInService.getStorage().entrySet()) {
+
+            if (founds == 2) break;
+
             // do not print the current user
             if (user.getValue().getUsername().equals(loggedUser)) continue;
 
@@ -190,10 +191,18 @@ public class ReaderThread implements Runnable {
                 }
             }
 
-            if (contains) stringBuilder.append("< " + user.getValue().toString() + "\n");
+            if (contains) {
+                stringBuilder.append("< " + user.getValue().toString() + "\n");
+                founds++;
+            }
         }
 
         stringBuilder.append("< \t...");
+    }
+
+    private void setHeaderList(StringBuilder stringBuilder) {
+        stringBuilder.append("< \tUser\t|\tTag\n");
+        stringBuilder.append("< —------------------------------------\n");
     }
 
     private boolean checkListArgsCount(String[] splitReq) { return splitReq.length < 2; }
@@ -245,7 +254,7 @@ public class ReaderThread implements Runnable {
     }
 
     private synchronized String performLogout() throws IOException {
-        if (signInService.getLoggedUsers().containsValue(client.socket())) {
+        if (isUserLogged()) {
             String key = getKey(signInService.getLoggedUsers(), client.socket());
             signInService.removeLoggedUser(key);
             return "< " + key + " logged out";
@@ -253,6 +262,10 @@ public class ReaderThread implements Runnable {
             System.out.println("No user logged in");
             return "< You're not logged in, please log in";
         }
+    }
+
+    private boolean isUserLogged() {
+        return signInService.getLoggedUsers().containsValue(client.socket());
     }
 
     private <K, V> K getKey(Map<K, V> map, V value) {

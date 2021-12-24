@@ -1,5 +1,17 @@
 [
 {
+  "username": "linda000",
+  "encryptedPassword": "e57e4b1f198ce52179c79d238ef91ec35a502ef871685d8e7ae1358511a1626f",
+  "tags": [
+    "swift",
+    "cats",
+    "dogs"
+  ],
+  "postIds": [],
+  "followers": [],
+  "followings": []
+},
+{
   "username": "andre1",
   "encryptedPassword": "e57e4b1f198ce52179c79d238ef91ec35a502ef871685d8e7ae1358511a1626f",
   "tags": [

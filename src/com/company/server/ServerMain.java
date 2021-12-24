@@ -1,5 +1,6 @@
 package com.company.server;
 
+import com.company.server.Interfaces.ServerAsyncInterface;
 import com.company.server.Interfaces.SignInService;
 
 import java.io.IOException;
@@ -21,15 +22,25 @@ public class ServerMain {
 
     public static final int port = 12120;
     public static final String serviceName = "RMISignIn";
-    public static final int timeout = 10000;
-    public static final int bufferSize = 32 * 1024;
     static ExecutorService pool = Executors.newCachedThreadPool();
+    public static ServerAsyncImpl asyncServer;
 
     public static void main(String[] args) {
         System.out.println("Server is running...");
         // TODO: Extract info from the configuration file
 
         SignInServiceImpl signInService = getInService();
+
+        try {
+            asyncServer = new ServerAsyncImpl();
+            ServerAsyncInterface stub = (ServerAsyncInterface) UnicastRemoteObject.exportObject(asyncServer, 39000);
+            String name = "AsyncServer";
+            LocateRegistry.createRegistry(5000);
+            Registry registry = LocateRegistry.getRegistry(5000);
+            registry.bind(name, stub);
+        } catch (Exception e) {
+            System.out.println("Raised exception " + e);
+        }
 
         try (ServerSocketChannel serverSocket = ServerSocketChannel.open();
                 Selector selector = Selector.open()) {
