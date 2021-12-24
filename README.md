@@ -1,11 +1,10 @@
 # winsome
 a reWardINg SOcial Media
 ### TODO
-* Configuration file parsing 
-* List following 
 * List followers (locally by client)
-* RMI Callback to notify in/out coming followers
+  * Pre-download followers list at login
   * Each client need to keep a data structure to store followers (guarantee consistency)
+* Configuration file parsing
 * After log in it is not possible to register, you must log out
 * Other points...
 
@@ -15,6 +14,7 @@ a reWardINg SOcial Media
 * It will be better if jsons are rewritten not after every data changes, but after a certain amount of time in order to reduce writing overhead
 * Put synchronized blocks in the right places
 * Make a better arrangement of responses
+* JavaDoc
 
 ### DONE
 * Remote Procedure Calls to register new users
@@ -24,3 +24,5 @@ a reWardINg SOcial Media
 * follow users
 * unfollow users
 * list users with tags in common
+* List following
+* RMI Callback to notify in/out coming followers

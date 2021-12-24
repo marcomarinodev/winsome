@@ -2,6 +2,7 @@ package com.company.server;
 
 import com.company.server.Storage.User;
 import com.company.server.Utils.NIOHelper;
+import com.company.server.Utils.Pair;
 import com.company.server.Utils.PersistentOperator;
 
 import java.io.IOException;
@@ -10,6 +11,7 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -21,8 +23,9 @@ public class ReaderThread implements Runnable {
     private final String request;
     private final SignInServiceImpl signInService;
     private Selector selector;
+    private ServerAsyncImpl asyncServer;
 
-    ReaderThread(SelectionKey key, SignInServiceImpl signInService, Selector selector) {
+    ReaderThread(SelectionKey key, SignInServiceImpl signInService, Selector selector, ServerAsyncImpl asyncServer) {
         this.key = key;
         this.client = (SocketChannel) key.channel();
         ByteBuffer byteBuffer = ByteBuffer.allocate(32 * 1024);
@@ -30,6 +33,7 @@ public class ReaderThread implements Runnable {
         this.signInService = signInService;
         this.selector = selector;
         request = NIOHelper.readRequest(key, (ByteBuffer) key.attachment());
+        this.asyncServer = asyncServer;
     }
 
     @Override
@@ -96,6 +100,13 @@ public class ReaderThread implements Runnable {
             loggedUserObj.addFollowing(toFollowUser);
             // Add follower to toFollowUser
             toFollowUserObj.addFollower(loggedUser);
+        }
+
+        // We need to notify the follower user that a user started following him
+        try {
+            asyncServer.updateNewFollowers(loggedUser, loggedUserObj.tagsToString(), toFollowUser);
+        } catch (RemoteException e) {
+            e.printStackTrace();
         }
 
         PersistentOperator.persistentWrite(

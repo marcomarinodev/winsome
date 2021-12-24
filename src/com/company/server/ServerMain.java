@@ -38,6 +38,7 @@ public class ServerMain {
             LocateRegistry.createRegistry(5000);
             Registry registry = LocateRegistry.getRegistry(5000);
             registry.bind(name, stub);
+            System.out.println("Async server is on");
         } catch (Exception e) {
             System.out.println("Raised exception " + e);
         }
@@ -82,7 +83,7 @@ public class ServerMain {
                             System.out.println("Client has a request");
                             // I have to assign this key to a thread inside the thread pool
                             key.cancel();
-                            pool.execute(new ReaderThread(key, signInService, selector));
+                            pool.execute(new ReaderThread(key, signInService, selector, asyncServer));
                             continue;
                         }
 

@@ -8,8 +8,13 @@
     "dogs"
   ],
   "postIds": [],
-  "followers": [],
-  "followings": []
+  "followers": [
+    "andre1"
+  ],
+  "followings": [
+    "marco1",
+    "andre1"
+  ]
 },
 {
   "username": "andre1",
@@ -20,9 +25,13 @@
     "kotlin"
   ],
   "postIds": [],
-  "followers": [],
+  "followers": [
+    "linda000",
+    "marco1"
+  ],
   "followings": [
     "ema1",
+    "linda000",
     "marco1"
   ]
 },
@@ -35,8 +44,7 @@
   ],
   "postIds": [],
   "followers": [
-    "andre1",
-    "marco1"
+    "andre1"
   ],
   "followings": [
     "marco1"
@@ -51,10 +59,11 @@
   "postIds": [],
   "followers": [
     "ema1",
+    "linda000",
     "andre1"
   ],
   "followings": [
-    "ema1"
+    "andre1"
   ]
 }
 ]

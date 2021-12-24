@@ -1,11 +1,19 @@
 package com.company.client;
 
+import com.company.client.interfaces.NotifyEventInterface;
+import com.company.server.Interfaces.ServerAsyncInterface;
 import com.company.server.SignInHandler;
+import com.company.server.Utils.Pair;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class ClientMain {
@@ -15,6 +23,7 @@ public class ClientMain {
     public static final String hostname = "localhost";
     public static final int bufferSize = 32 * 1024;
     public static String loggedUsername = "";
+    public static List<Pair<String, String>> followers = new ArrayList<>();
 
     public static void main(String[] args) {
         SocketChannel cl = null;
@@ -55,7 +64,12 @@ public class ClientMain {
 
         if (args[0].equals("list") && args.length > 1) {
             if (args[1].equals("followers")) {
-                System.out.println("> list followers it is not available yet");
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.append("< \tUser\t|\tTag\n");
+                stringBuilder.append("< —------------------------------------\n");
+                for (Pair<String,String> follower: followers)
+                    stringBuilder.append("< " + follower.getLeft() + "\t|\t" + follower.getRight());
+                System.out.println(stringBuilder.toString());
                 return false;
             }
         }
@@ -99,6 +113,19 @@ public class ClientMain {
             if (!loggedUsername.equals("")) {
                 if (response.equals("< " + loggedUsername + " logged in")) {
                     // TODO: Registering for server asynchronous callbacks
+                    try {
+                        System.out.println("Searching notification server");
+                        Registry registry = LocateRegistry.getRegistry(5000);
+                        String name = "AsyncServer";
+                        ServerAsyncInterface server = (ServerAsyncInterface) registry.lookup(name);
+                        // registering for callback
+                        System.out.println("Registering for callback");
+                        NotifyEventInterface callbackObj = new NotifyEventImpl(followers, loggedUsername);
+                        NotifyEventInterface stub = (NotifyEventInterface) UnicastRemoteObject.exportObject(callbackObj, 0);
+                        server.registerForCallback(stub);
+                    } catch (Exception e) {
+                        System.out.println("Client exception " + e.getMessage());
+                    }
                 }
             } else {
                 // TODO: Unregistering for server asynchronous callbacks
