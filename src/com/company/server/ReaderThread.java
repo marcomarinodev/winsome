@@ -2,7 +2,6 @@ package com.company.server;
 
 import com.company.server.Storage.User;
 import com.company.server.Utils.NIOHelper;
-import com.company.server.Utils.Pair;
 import com.company.server.Utils.PersistentOperator;
 
 import java.io.IOException;
@@ -18,7 +17,6 @@ import java.util.Map;
 public class ReaderThread implements Runnable {
 
     private final SelectionKey key;
-    private final ByteBuffer buffer = ByteBuffer.allocate(32*1024);
     private final SocketChannel client;
     private final String request;
     private final SignInServiceImpl signInService;
@@ -252,7 +250,8 @@ public class ReaderThread implements Runnable {
                 if (User.hashEncrypt(splitReq[2]).equals(password)) {
                     System.out.println("User accepted");
                     signInService.addLoggedUser(splitReq[1], client.socket());
-                    return "< " + splitReq[1] + " logged in";
+                    return getFollowersListOutput(splitReq[1], signInService.getStorage())
+                            + "< " + splitReq[1] + " logged in";
                 } else {
                     System.out.println("Wrong Password");
                     return "< Wrong Password";
@@ -262,6 +261,19 @@ public class ReaderThread implements Runnable {
                 return "< Error " + splitReq[1] + " does not exists";
             }
         }
+    }
+
+    private synchronized String getFollowersListOutput(String username, Map<String, User> storage) {
+        StringBuilder stringBuilder = new StringBuilder();
+        // You already know that user is registered
+        User user = storage.get(username);
+
+        for (String follower: user.getFollowers()) {
+            stringBuilder.append(follower).append("/");
+            stringBuilder.append(storage.get(follower).tagsToString()).append("//");
+        }
+
+        return stringBuilder.toString();
     }
 
     private synchronized String performLogout() throws IOException {

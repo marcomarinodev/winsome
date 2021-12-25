@@ -64,12 +64,16 @@ public class ClientMain {
 
         if (args[0].equals("list") && args.length > 1) {
             if (args[1].equals("followers")) {
-                StringBuilder stringBuilder = new StringBuilder();
-                stringBuilder.append("< \tUser\t|\tTag\n");
-                stringBuilder.append("< —------------------------------------\n");
-                for (Pair<String,String> follower: followers)
-                    stringBuilder.append("< " + follower.getLeft() + "\t|\t" + follower.getRight());
-                System.out.println(stringBuilder.toString());
+                if (loggedUsername.equals("")) {
+                    System.out.println("< You must login before do this action");
+                } else {
+                    StringBuilder stringBuilder = new StringBuilder();
+                    stringBuilder.append("< \tUser\t|\tTag\n");
+                    stringBuilder.append("< —------------------------------------\n");
+                    for (Pair<String, String> follower : followers)
+                        stringBuilder.append("< " + follower.getLeft() + "\t|\t" + follower.getRight() + "\n");
+                    System.out.println(stringBuilder.toString());
+                }
                 return false;
             }
         }
@@ -82,6 +86,7 @@ public class ClientMain {
 
         if (args[0].equals("logout")) {
             loggedUsername = "";
+            followers.clear();
         }
 
         try {
@@ -111,8 +116,17 @@ public class ClientMain {
             System.out.println(response);
 
             if (!loggedUsername.equals("")) {
-                if (response.equals("< " + loggedUsername + " logged in")) {
-                    // TODO: Registering for server asynchronous callbacks
+
+                // Cycle until penultimate row
+                String[] splitResponse = response.split("//");
+
+                for (String str: splitResponse) {
+                    String[] splitLine = str.split("/");
+                    if (splitLine.length > 1)
+                        followers.add(new Pair<>(splitLine[0], splitLine[1]));
+                }
+
+                if (splitResponse[splitResponse.length - 1].equals("< " + loggedUsername + " logged in")) {
                     try {
                         System.out.println("Searching notification server");
                         Registry registry = LocateRegistry.getRegistry(5000);

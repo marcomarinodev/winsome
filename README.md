@@ -1,11 +1,9 @@
 # winsome
 a reWardINg SOcial Media
 ### TODO
-* List followers (locally by client)
-  * Pre-download followers list at login
-  * Each client need to keep a data structure to store followers (guarantee consistency)
 * Configuration file parsing
 * After log in it is not possible to register, you must log out
+* Set socket timeout
 * Other points...
 
 ### POLISH
@@ -26,3 +24,6 @@ a reWardINg SOcial Media
 * list users with tags in common
 * List following
 * RMI Callback to notify in/out coming followers
+* List followers (locally by client)
+  * Pre-download followers list at login 
+  * Each client need to keep a data structure to store followers (guarantee consistency)
