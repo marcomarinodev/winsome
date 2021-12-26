@@ -11,6 +11,7 @@ import java.net.Socket;
 import java.rmi.RemoteException;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -101,6 +102,15 @@ public class SignInServiceImpl implements SignInService {
     }
 
     public Map<String, Post> getPosts() { return posts; }
+
+    public List<Post> getPostsOf(String username) {
+        List<Post> filteredPosts = new ArrayList<>();
+        for (Map.Entry<String, Post> postEntry: posts.entrySet()) {
+            if (postEntry.getValue().getAuthor().equals(username))
+                filteredPosts.add(postEntry.getValue());
+        }
+        return filteredPosts;
+    }
 
     public Post getPost(String id) {return posts.get(id); }
 

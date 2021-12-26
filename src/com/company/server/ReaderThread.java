@@ -4,7 +4,6 @@ import com.company.server.Storage.Post;
 import com.company.server.Storage.User;
 import com.company.server.Utils.NIOHelper;
 import com.company.server.Utils.PersistentOperator;
-import jdk.swing.interop.SwingInterOpUtils;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -13,9 +12,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public class ReaderThread implements Runnable {
 
@@ -25,6 +22,7 @@ public class ReaderThread implements Runnable {
     private final SignInServiceImpl signInService;
     private Selector selector;
     private ServerAsyncImpl asyncServer;
+    private String loggedUser;
 
     ReaderThread(SelectionKey key, SignInServiceImpl signInService, Selector selector, ServerAsyncImpl asyncServer) {
         this.key = key;
@@ -35,6 +33,7 @@ public class ReaderThread implements Runnable {
         this.selector = selector;
         request = NIOHelper.readRequest(key, (ByteBuffer) key.attachment());
         this.asyncServer = asyncServer;
+        loggedUser = getKey(signInService.getLoggedUsers(), client.socket());
     }
 
     @Override
@@ -73,7 +72,11 @@ public class ReaderThread implements Runnable {
                 }
                 case "show" -> {
                     System.out.println("Show post request");
-                    result = performShowPost(splitReq);
+                    result = performShowOperation(splitReq);
+                }
+                case "rate" -> {
+                    System.out.println("Rate post request");
+                    result = performRatePost(splitReq);
                 }
                 default -> result = "< " + request + "operation is not supported";
             }
@@ -93,9 +96,65 @@ public class ReaderThread implements Runnable {
         System.out.println("End ReaderThread");
     }
 
-    private String performShowPost(String[] splitReq) {
-        // You do not have to be logged
+    private String performShowOperation(String[] splitReq) {
+        if (splitReq.length < 2) return "< You're missing some show arguments";
+        if (splitReq[1].equals("post")) {
+            return performShowPost(splitReq);
+        } else if (splitReq[1].equals("feed")) {
+            return performShowFeed();
+        }
+        else return "< " + splitReq[1] + " is not a show option";
+    }
+
+    private String performShowFeed() {
+        // You must log in
+        if (!isUserLogged()) return "< You must login to do this operation";
+        List<Post> filteredPosts = new ArrayList<>();
+        User loggedUserObj = signInService.getStorage().get(loggedUser);
+        for (String follower: loggedUserObj.getFollowers()) {
+            filteredPosts.addAll(signInService.getPostsOf(follower));
+        }
+
+        Collections.shuffle(filteredPosts);
+        StringBuilder stringBuilder = new StringBuilder();
+
+        for (Post post: filteredPosts) {
+            // id author title
+            stringBuilder.append("< " + post.getId() +
+                    " " + post.getAuthor() +
+                    " " + post.getTitle() + "\n");
+        }
+
+        return stringBuilder.toString();
+    }
+
+    private String performRatePost(String[] splitReq) {
+        // You have to be logged
+        if (!isUserLogged()) return "< You must login to do this operation";
         if (splitReq.length < 3) return "< You're missing some show post arguments";
+        // Check if post exists
+        Post post = signInService.getPost(splitReq[1]);
+        if (post == null) return "< post " + splitReq[1] + " does not exist";
+        // You have to check if this post is inside loggedUser feed
+        // In other words, the post author has to be a following
+
+        if (!signInService.getStorage().get(loggedUser).existsFollowing(post.getAuthor()))
+            return "< This post is not in your feed";
+        // Check if you've already voted this post
+        if (post.userAlreadyVoted(loggedUser)) return "< you've already voted this post";
+        // You cannot rate your post
+        if (loggedUser.equals(post.getAuthor()))
+            return "< You cannot rate your post";
+
+        // now you can vote
+        if (Integer.parseInt(splitReq[2]) > 0) post.addPositiveVote(loggedUser);
+        else post.addNegativeVote(loggedUser);
+
+        return "< You've rated post " + splitReq[2];
+    }
+
+    private String performShowPost(String[] splitReq) {
+        // You don't have to be logged
         // Check if post exists
         Post post = signInService.getPost(splitReq[2]);
         if (post == null) return "< post " + splitReq[2] + " does not exist";
@@ -117,7 +176,6 @@ public class ReaderThread implements Runnable {
 
         String title = NIOHelper.removeLastChar(titleContent[1]);
         String content = NIOHelper.removeLastChar(titleContent[2]);
-        String loggedUser = getKey(signInService.getLoggedUsers(), client.socket());
 
         if (title.length() == 0 || title.length() > 20) return "Title must have 1-20 characters";
         if (content.length() == 0 || content.length() > 500) return "Content must have 1-500 characters";
@@ -151,9 +209,8 @@ public class ReaderThread implements Runnable {
         if (!isUserLogged()) return "< You must login to do this operation";
         if (!existsUser(splitReq[1])) return "< " + splitReq[1] + " does not exist";
 
-        String toFollowUser = splitReq[1];
-        String loggedUser = getKey(signInService.getLoggedUsers(), client.socket());
         User loggedUserObj = signInService.getStorage().get(loggedUser);
+        String toFollowUser = splitReq[1];
         User toFollowUserObj = signInService.getStorage().get(toFollowUser);
 
         // A user cannot follow himself
@@ -191,7 +248,6 @@ public class ReaderThread implements Runnable {
         if (!existsUser(splitReq[1])) return "< " + splitReq[1] + " does not exist";
 
         String toUnfollowUser = splitReq[1];
-        String loggedUser = getKey(signInService.getLoggedUsers(), client.socket());
         User loggedUserObj = signInService.getStorage().get(loggedUser);
         User toUnfollowUserObj = signInService.getStorage().get(toUnfollowUser);
 
@@ -228,14 +284,13 @@ public class ReaderThread implements Runnable {
         if (checkListArgsCount(splitReq)) return "< list has not enough parameters";
         if (!isUserLogged()) return "< You must login in order to do this operation";
 
-        String loggedUser = getKey(signInService.getLoggedUsers(), client.socket());
         StringBuilder stringBuilder = new StringBuilder();
         String topic = splitReq[1];
         boolean notRecognizedTopic = false;
 
         switch (topic) {
-            case "users" -> listUsers(loggedUser, stringBuilder);
-            case "following" -> listFollowing(loggedUser, stringBuilder);
+            case "users" -> listUsers(stringBuilder);
+            case "following" -> listFollowing(stringBuilder);
             default -> notRecognizedTopic = true;
         }
 
@@ -244,7 +299,7 @@ public class ReaderThread implements Runnable {
         return stringBuilder.toString();
     }
 
-    private synchronized void listFollowing(String loggedUser, StringBuilder stringBuilder) {
+    private synchronized void listFollowing(StringBuilder stringBuilder) {
         setHeaderList(stringBuilder);
         User loggedUserObj = signInService.getStorage().get(loggedUser);
 
@@ -255,7 +310,7 @@ public class ReaderThread implements Runnable {
         }
     }
 
-    private synchronized void listUsers(String loggedUser, StringBuilder stringBuilder) {
+    private synchronized void listUsers(StringBuilder stringBuilder) {
         setHeaderList(stringBuilder);
         ArrayList<String> loggedUserTags = signInService.getStorage().get(loggedUser).getTags();
         int founds = 0;

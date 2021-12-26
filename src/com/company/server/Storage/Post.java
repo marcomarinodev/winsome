@@ -50,6 +50,22 @@ public class Post {
         return negativeVotes.size();
     }
 
+    public void addPositiveVote(String username) {
+        positiveVotes.add(username);
+    }
+
+    public void removePositiveVote(String username) {
+        positiveVotes.remove(username);
+    }
+
+    public void addNegativeVote(String username) {
+        negativeVotes.add(username);
+    }
+
+    public void removeNegativeVote(String username) {
+        negativeVotes.remove(username);
+    }
+
     public String getComments() {
         StringBuilder stringBuilder = new StringBuilder();
 
@@ -57,5 +73,9 @@ public class Post {
             stringBuilder.append("\t" + comment.getKey() + ": \"" + comment.getValue() + "\"\n");
 
         return stringBuilder.toString();
+    }
+
+    public boolean userAlreadyVoted(String username) {
+        return positiveVotes.contains(username) || negativeVotes.contains(username);
     }
 }

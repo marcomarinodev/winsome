@@ -2,7 +2,6 @@
 a reWardINg SOcial Media
 ### TODO
 * Configuration file parsing
-* Unregister for RMI Callback when user logs out
 * After log in it is not possible to register, you must log out
 * Set socket timeout
 * Fix prints
@@ -37,3 +36,6 @@ a reWardINg SOcial Media
 * RMI Callback to notify in/out coming followers
 * Publish posts
 * Show post given id
+* Rate post
+* Unregister for RMI Callback when user logs out
+* Show feed
