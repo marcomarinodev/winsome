@@ -1,8 +1,10 @@
 package com.company.server;
 
+import com.company.server.Storage.Post;
 import com.company.server.Storage.User;
 import com.company.server.Utils.NIOHelper;
 import com.company.server.Utils.PersistentOperator;
+import jdk.swing.interop.SwingInterOpUtils;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -13,6 +15,7 @@ import java.nio.channels.SocketChannel;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Objects;
 
 public class ReaderThread implements Runnable {
 
@@ -43,23 +46,36 @@ public class ReaderThread implements Runnable {
             String[] splitReq = getOperation();
             String operation = splitReq[0];
             System.out.println("Current Request: " + request);
-            if (operation.equals("login")) {
-                System.out.println("Login request");
-                result = performLogin(splitReq);
-            } else if (operation.equals("logout")) {
-                System.out.println("Logout request");
-                result = performLogout();
-            } else if (operation.equals("list")) {
-                System.out.println("List request");
-                result = performListOperation(splitReq);
-            } else if (operation.equals("follow")) {
-                System.out.println("Follow request");
-                result = performFollow(splitReq);
-            } else if (operation.equals("unfollow")) {
-                System.out.println("Unfollow request");
-                result = performUnfollow(splitReq);
-            } else {
-                result = "< " + request + "operation is not supported";
+            switch (operation) {
+                case "login" -> {
+                    System.out.println("Login request");
+                    result = performLogin(splitReq);
+                }
+                case "logout" -> {
+                    System.out.println("Logout request");
+                    result = performLogout();
+                }
+                case "list" -> {
+                    System.out.println("List request");
+                    result = performListOperation(splitReq);
+                }
+                case "follow" -> {
+                    System.out.println("Follow request");
+                    result = performFollow(splitReq);
+                }
+                case "unfollow" -> {
+                    System.out.println("Unfollow request");
+                    result = performUnfollow(splitReq);
+                }
+                case "post" -> {
+                    System.out.println("Create post request");
+                    result = performAddPost(request);
+                }
+                case "show" -> {
+                    System.out.println("Show post request");
+                    result = performShowPost(splitReq);
+                }
+                default -> result = "< " + request + "operation is not supported";
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -77,9 +93,62 @@ public class ReaderThread implements Runnable {
         System.out.println("End ReaderThread");
     }
 
+    private String performShowPost(String[] splitReq) {
+        // You do not have to be logged
+        if (splitReq.length < 3) return "< You're missing some show post arguments";
+        // Check if post exists
+        Post post = signInService.getPost(splitReq[2]);
+        if (post == null) return "< post " + splitReq[2] + " does not exist";
+        // Get post object
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("< Title: " + post.getTitle() + "\n");
+        stringBuilder.append("< Content: " + post.getContent() + "\n");
+        stringBuilder.append("< Votes: " + post.getPositiveVotesCount() + " positives, "
+                                + post.getNegativeVotesCount() + " negatives\n");
+        stringBuilder.append("< Comments:\n" + post.getComments());
+
+        return stringBuilder.toString();
+    }
+
+    private String performAddPost(String request) {
+        if (!isUserLogged()) return "< You must login to do this operation";
+        String[] titleContent = request.split(" \"");
+        if (titleContent.length < 3) return "< You're missing some arguments";
+
+        String title = NIOHelper.removeLastChar(titleContent[1]);
+        String content = NIOHelper.removeLastChar(titleContent[2]);
+        String loggedUser = getKey(signInService.getLoggedUsers(), client.socket());
+
+        if (title.length() == 0 || title.length() > 20) return "Title must have 1-20 characters";
+        if (content.length() == 0 || content.length() > 500) return "Content must have 1-500 characters";
+
+        // We're sure that Post has correct format
+        Post newPost = new Post(signInService.getNewId(), title, content, loggedUser);
+
+        // Add post
+        String x = addPostToDataStructures(loggedUser, newPost);
+        if (x != null) return x;
+
+        PersistentOperator.persistentWrite(
+                signInService.getStorage(),
+                signInService.getPosts(),
+                "users.json",
+                "posts.json");
+
+        return "< Created new post (id=" + newPost.getId() + ")";
+    }
+
+    private String addPostToDataStructures(String loggedUser, Post newPost) {
+        if (signInService.getStorage().get(loggedUser).addPost(newPost.getId()))
+            signInService.addPost(newPost);
+        else return "< Some error occurred";
+        return null;
+    }
+
+
     private String performFollow(String[] splitReq) {
         if (checkListArgsCount(splitReq)) return "< list has not enough parameters";
-        if (!isUserLogged()) return "< You must login in order to do this operation";
+        if (!isUserLogged()) return "< You must login to do this operation";
         if (!existsUser(splitReq[1])) return "< " + splitReq[1] + " does not exist";
 
         String toFollowUser = splitReq[1];
@@ -88,7 +157,7 @@ public class ReaderThread implements Runnable {
         User toFollowUserObj = signInService.getStorage().get(toFollowUser);
 
         // A user cannot follow himself
-        if (loggedUser.equals(toFollowUser)) return "< You cannot follow yourself!";
+        if (Objects.requireNonNull(loggedUser).equals(toFollowUser)) return "< You cannot follow yourself!";
 
         synchronized (signInService.getStorage()) {
             // If logged user already follows toFollowUser
@@ -127,7 +196,7 @@ public class ReaderThread implements Runnable {
         User toUnfollowUserObj = signInService.getStorage().get(toUnfollowUser);
 
         // A user cannot unfollow himself
-        if (loggedUser.equals(toUnfollowUser)) return "< You cannot unfollow yourself!";
+        if (Objects.requireNonNull(loggedUser).equals(toUnfollowUser)) return "< You cannot unfollow yourself!";
 
         synchronized(signInService.getStorage()) {
             // If logged user follows toUnfollowUser
@@ -182,7 +251,7 @@ public class ReaderThread implements Runnable {
         for (String username: loggedUserObj.getFollowings()) {
             User followingUser = signInService.getStorage().get(username);
 
-            stringBuilder.append("< " + followingUser.toString() + "\n");
+            stringBuilder.append("< ").append(followingUser.toString()).append("\n");
         }
     }
 
@@ -208,7 +277,7 @@ public class ReaderThread implements Runnable {
             }
 
             if (contains) {
-                stringBuilder.append("< " + user.getValue().toString() + "\n");
+                stringBuilder.append("< ").append(user.getValue().toString()).append("\n");
                 founds++;
             }
         }

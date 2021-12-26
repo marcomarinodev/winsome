@@ -141,4 +141,12 @@ public class User {
         }
         return false;
     }
+
+    public boolean addPost(String postId) {
+        return postIds.add(postId);
+    }
+
+    public boolean removePost(String postId) {
+        return postIds.remove(postId);
+    }
 }

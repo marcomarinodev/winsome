@@ -54,7 +54,10 @@
   "tags": [
     "swift"
   ],
-  "postIds": [],
+  "postIds": [
+    "1",
+    "2"
+  ],
   "followers": [
     "linda000",
     "andre1"

@@ -23,12 +23,12 @@ public class SignInServiceImpl implements SignInService {
 
     public SignInServiceImpl(String mex) {
         System.out.println("Retrieving users from users.json");
-        Pair<Map<String,User>, Map<String, Post>> pair = PersistentOperator.persistentRead("users.json", "posts.json");
+        Pair<Map<String,User>, Map<String, Post>> pair = PersistentOperator.persistentRead(
+                "users.json",
+                "posts.json"
+        );
         storage = pair.getLeft();
         posts = pair.getRight();
-        for (Map.Entry<String, User> user: storage.entrySet()) {
-            System.out.println(user.toString());
-        }
     }
 
     @Override
@@ -94,11 +94,17 @@ public class SignInServiceImpl implements SignInService {
         this.storage.put(user.getUsername(), user);
     }
 
+    public void addPost(Post post) { this.posts.put(post.getId(), post); }
+
     public Map<String, Socket> getLoggedUsers() {
         return loggedUsers;
     }
 
     public Map<String, Post> getPosts() { return posts; }
+
+    public Post getPost(String id) {return posts.get(id); }
+
+    public int getNewId() { return posts.size() + 1; }
 
     public void addLoggedUser(String username, Socket socket) {
         this.loggedUsers.put(username, socket);
