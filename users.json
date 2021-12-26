@@ -46,7 +46,9 @@
   "followers": [
     "andre1"
   ],
-  "followings": []
+  "followings": [
+    "marco1"
+  ]
 },
 {
   "username": "marco1",
@@ -60,7 +62,8 @@
   ],
   "followers": [
     "linda000",
-    "andre1"
+    "andre1",
+    "ema1"
   ],
   "followings": [
     "andre1"

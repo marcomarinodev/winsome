@@ -78,6 +78,10 @@ public class ReaderThread implements Runnable {
                     System.out.println("Rate post request");
                     result = performRatePost(splitReq);
                 }
+                case "blog" -> {
+                    System.out.println("View Blog request");
+                    result = performBlog();
+                }
                 default -> result = "< " + request + "operation is not supported";
             }
         } catch (IOException e) {
@@ -94,6 +98,23 @@ public class ReaderThread implements Runnable {
         }
         selector.wakeup();
         System.out.println("End ReaderThread");
+    }
+
+    private String performBlog() {
+        if (!isUserLogged()) return "< You must login to do this operation";
+        List<Post> posts = signInService.getPostsOf(loggedUser);
+        StringBuilder stringBuilder = new StringBuilder();
+
+        for (Post post: posts) {
+            stringBuilder.append("< Title: " + post.getTitle() + "\n");
+            stringBuilder.append("< Content: " + post.getContent() + "\n");
+            stringBuilder.append("< Votes: " + post.getPositiveVotesCount() + " positives, "
+                    + post.getNegativeVotesCount() + " negatives\n");
+            stringBuilder.append("< Comments:\n" + post.getComments());
+            stringBuilder.append("------------------------\n");
+        }
+
+        return stringBuilder.toString();
     }
 
     private String performShowOperation(String[] splitReq) {

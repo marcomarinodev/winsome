@@ -1,6 +1,10 @@
 # winsome
 a reWardINg SOcial Media
 ### TODO
+* View Blog
+* Delete post
+* Add comments
+* Rewin a post
 * Configuration file parsing
 * After log in it is not possible to register, you must log out
 * Set socket timeout
