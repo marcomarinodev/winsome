@@ -1,7 +1,6 @@
 # winsome
 a reWardINg SOcial Media
 ### TODO
-* View Blog
 * Delete post
 * Add comments
 * Rewin a post
@@ -43,3 +42,4 @@ a reWardINg SOcial Media
 * Rate post
 * Unregister for RMI Callback when user logs out
 * Show feed
+* View Blog
