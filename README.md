@@ -2,8 +2,11 @@
 a reWardINg SOcial Media
 ### TODO
 * Configuration file parsing
+* RMI Callback to notify in/out coming followers
+* Unregister for RMI Callback when user logs out
 * After log in it is not possible to register, you must log out
 * Set socket timeout
+* Fix prints
 * Other points...
 
 ### POLISH
@@ -12,6 +15,7 @@ a reWardINg SOcial Media
 * It will be better if jsons are rewritten not after every data changes, but after a certain amount of time in order to reduce writing overhead
 * Put synchronized blocks in the right places
 * Make a better arrangement of responses
+* Refactor Client's class
 * JavaDoc
 
 ### DONE
@@ -23,7 +27,6 @@ a reWardINg SOcial Media
 * unfollow users
 * list users with tags in common
 * List following
-* RMI Callback to notify in/out coming followers
 * List followers (locally by client)
   * Pre-download followers list at login 
   * Each client need to keep a data structure to store followers (guarantee consistency)

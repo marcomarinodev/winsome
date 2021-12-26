@@ -24,6 +24,8 @@ public class ClientMain {
     public static final int bufferSize = 32 * 1024;
     public static String loggedUsername = "";
     public static List<Pair<String, String>> followers = new ArrayList<>();
+    public static ServerAsyncInterface server = null;
+    public static NotifyEventInterface stub = null;
 
     public static void main(String[] args) {
         SocketChannel cl = null;
@@ -131,18 +133,19 @@ public class ClientMain {
                         System.out.println("Searching notification server");
                         Registry registry = LocateRegistry.getRegistry(5000);
                         String name = "AsyncServer";
-                        ServerAsyncInterface server = (ServerAsyncInterface) registry.lookup(name);
+                        server = (ServerAsyncInterface) registry.lookup(name);
                         // registering for callback
                         System.out.println("Registering for callback");
                         NotifyEventInterface callbackObj = new NotifyEventImpl(followers, loggedUsername);
-                        NotifyEventInterface stub = (NotifyEventInterface) UnicastRemoteObject.exportObject(callbackObj, 0);
+                        stub = (NotifyEventInterface) UnicastRemoteObject.exportObject(callbackObj, 0);
                         server.registerForCallback(stub);
                     } catch (Exception e) {
                         System.out.println("Client exception " + e.getMessage());
                     }
                 }
             } else {
-                // TODO: Unregistering for server asynchronous callbacks
+                if (server != null && stub != null)
+                    server.unregisterForCallback(stub);
             }
 
         } catch (IOException e) {

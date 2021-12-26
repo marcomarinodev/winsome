@@ -2,7 +2,6 @@ package com.company.server;
 
 import com.company.client.interfaces.NotifyEventInterface;
 import com.company.server.Interfaces.ServerAsyncInterface;
-import com.company.server.Utils.Pair;
 
 import java.rmi.RemoteException;
 import java.rmi.server.RemoteObject;
@@ -35,16 +34,29 @@ public class ServerAsyncImpl extends RemoteObject implements ServerAsyncInterfac
             System.out.println("Unable to unregister client");
     }
 
-    public void updateNewFollowers(String newFollower, String newFollowerTagsStr, String receiver) throws RemoteException {
-        doNewFollowerCallback(newFollower, newFollowerTagsStr, receiver);
+    public void updateNewFollower(String newFollower, String newFollowerTagsStr, String receiver) throws RemoteException {
+        doFollowCallback(newFollower, newFollowerTagsStr, receiver);
     }
 
-    private synchronized void doNewFollowerCallback(String newFollower, String newFollowerTagsStr, String receiver) throws RemoteException {
+    public void updateExFollower(String exFollower, String receiver) throws RemoteException {
+        doUnfollowCallback(exFollower, receiver);
+    }
+
+    private synchronized void doFollowCallback(String newFollower, String newFollowerTagsStr, String receiver) throws RemoteException {
         Iterator i = clients.iterator();
 
         while (i.hasNext()) {
             NotifyEventInterface client = (NotifyEventInterface) i.next();
-            client.notifyNewFollower(newFollower, newFollowerTagsStr, receiver);
+            client.notifyFollow(newFollower, newFollowerTagsStr, receiver);
+        }
+    }
+
+    private synchronized void doUnfollowCallback(String follower, String receiver) throws RemoteException {
+        Iterator i = clients.iterator();
+
+        while (i.hasNext()) {
+            NotifyEventInterface client = (NotifyEventInterface) i.next();
+            client.notifyUnfollow(follower, receiver);
         }
     }
 }

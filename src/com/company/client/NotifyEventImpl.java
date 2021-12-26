@@ -18,10 +18,18 @@ public class NotifyEventImpl extends RemoteObject implements NotifyEventInterfac
     }
 
     @Override
-    public void notifyNewFollower(String follower, String followerTagsStr, String username) throws RemoteException {
+    public void notifyFollow(String follower, String followerTagsStr, String username) throws RemoteException {
         if (this.username.equals(username)) {
             followers.add(new Pair<>(follower, followerTagsStr));
             System.out.println(follower + " started following you\n");
+        }
+    }
+
+    @Override
+    public void notifyUnfollow(String follower, String username) throws RemoteException {
+        if (this.username.equals(username)) {
+            followers.removeIf(foll -> foll.getLeft().equals(follower));
+            System.out.println(follower + " stopped following you\n");
         }
     }
 

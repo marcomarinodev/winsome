@@ -102,7 +102,7 @@ public class ReaderThread implements Runnable {
 
         // We need to notify the follower user that a user started following him
         try {
-            asyncServer.updateNewFollowers(loggedUser, loggedUserObj.tagsToString(), toFollowUser);
+            asyncServer.updateNewFollower(loggedUser, loggedUserObj.tagsToString(), toFollowUser);
         } catch (RemoteException e) {
             e.printStackTrace();
         }
@@ -137,6 +137,13 @@ public class ReaderThread implements Runnable {
             loggedUserObj.removeFollowing(toUnfollowUser);
             // Add follower to toFollowUser
             toUnfollowUserObj.removeFollower(loggedUser);
+        }
+
+        // We need to notify the follower user that a user started following him
+        try {
+            asyncServer.updateExFollower(loggedUser, toUnfollowUser);
+        } catch (RemoteException e) {
+            e.printStackTrace();
         }
 
         PersistentOperator.persistentWrite(
