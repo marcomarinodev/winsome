@@ -90,6 +90,10 @@ public class ReaderThread implements Runnable {
                     System.out.println("Rewin post request");
                     result = performRewin(splitReq);
                 }
+                case "comment" -> {
+                    System.out.println("Comment post request");
+                    result = performComment(request);
+                }
                 default -> result = "< " + request + "operation is not supported";
             }
         } catch (IOException e) {
@@ -106,6 +110,30 @@ public class ReaderThread implements Runnable {
         }
         selector.wakeup();
         System.out.println("End ReaderThread");
+    }
+
+    private String performComment(String request) {
+
+        String[] splitReq = request.split(" ");
+        String comment = NIOHelper.removeLastChar(request.split(" \"")[1]);
+
+        if (comment.length() == 0 || comment.length() > 20) return "< Comment must have 1-20 characters";
+
+        if (!isUserLogged()) return "< You must login to do this operation";
+        // Check if post exists
+        Post post = signInService.getPost(splitReq[1]);
+        if (post == null) return "< post " + splitReq[1] + " does not exist";
+
+        post.addComment(loggedUser, comment);
+
+        // For now write into the json
+        PersistentOperator.persistentWrite(
+                signInService.getStorage(),
+                signInService.getPosts(),
+                "users.json",
+                "posts.json");
+
+        return "< You just commented successfully";
     }
 
     private String performRewin(String[] splitReq) {

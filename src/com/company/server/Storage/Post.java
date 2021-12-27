@@ -1,5 +1,7 @@
 package com.company.server.Storage;
 
+import com.company.server.Utils.Pair;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +18,7 @@ public class Post {
     private List<String> negativeVotes;
     // List of post ids that rewined this post
     private List<String> rewins;
-    private ConcurrentHashMap<String, String> comments;
+    private List<Pair<String, String>> comments;
 
     public Post(int id, String title, String content, String author) {
         this.id = String.valueOf(id);
@@ -26,7 +28,7 @@ public class Post {
         positiveVotes = new ArrayList<>();
         negativeVotes = new ArrayList<>();
         rewins = new ArrayList<>();
-        comments = new ConcurrentHashMap<String, String>();
+        comments = new ArrayList<>();
     }
 
     public String getId() {
@@ -72,8 +74,8 @@ public class Post {
     public String getComments() {
         StringBuilder stringBuilder = new StringBuilder();
 
-        for (Map.Entry<String, String> comment: comments.entrySet())
-            stringBuilder.append("\t" + comment.getKey() + ": \"" + comment.getValue() + "\"\n");
+        for (Pair<String, String> comment: comments)
+            stringBuilder.append("\t" + comment.getLeft() + ": \"" + comment.getRight() + "\"\n");
 
         return stringBuilder.toString();
     }
@@ -92,5 +94,9 @@ public class Post {
 
     public void removeRewin(String postId) {
         rewins.remove(postId);
+    }
+
+    public void addComment(String author, String content) {
+        comments.add(new Pair<>(author, content));
     }
 }

@@ -1,7 +1,6 @@
 # winsome
 a reWardINg SOcial Media
 ### TODO
-- [ ] Add comments
 - [ ] Configuration file parsing
 - [ ] After log in it is not possible to register, you must log out
 - [ ] Set socket timeout
@@ -31,6 +30,7 @@ a reWardINg SOcial Media
 - [X] Delete post
   - [X] Delete rewins on it
 - [X] Rewin a post
+- [X] Add comments
 
 ### POLISH
 - [ ] Divide server -> client output in reasonable quantity of pieces

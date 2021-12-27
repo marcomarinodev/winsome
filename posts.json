@@ -1,3 +1,25 @@
 [
-
+{
+  "id": "1",
+  "title": "Example",
+  "content": "Post Example",
+  "author": "andre1",
+  "positiveVotes": [],
+  "negativeVotes": [],
+  "rewins": [],
+  "comments": [
+    {
+      "left": "andre1",
+      "right": "bello"
+    },
+    {
+      "left": "marco1",
+      "right": "wow"
+    },
+    {
+      "left": "marco1",
+      "right": "la vita è bella"
+    }
+  ]
+}
 ]
