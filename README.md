@@ -1,9 +1,7 @@
 # winsome
 a reWardINg SOcial Media
 ### TODO
-* Delete post
 * Add comments
-* Rewin a post
 * Configuration file parsing
 * After log in it is not possible to register, you must log out
 * Set socket timeout
@@ -22,6 +20,7 @@ a reWardINg SOcial Media
 * Put synchronized blocks in the right places
 * Make a better arrangement of responses
 * Refactor Client's class
+* Make client operation arguments checking on client side
 * JavaDoc
 
 ### DONE
@@ -43,3 +42,6 @@ a reWardINg SOcial Media
 * Unregister for RMI Callback when user logs out
 * Show feed
 * View Blog
+* Delete post 
+  * Delete rewins on it
+* Rewin a post

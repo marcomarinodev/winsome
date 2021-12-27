@@ -1,20 +1,3 @@
 [
-{
-  "id": "1",
-  "title": "Ciao a tutti",
-  "content": "Questo è il mio primo post",
-  "author": "marco1",
-  "positiveVotes": [],
-  "negativeVotes": [],
-  "comments": {}
-},
-{
-  "id": "2",
-  "title": "Eccolo",
-  "content": "Èarrivato il secondo post",
-  "author": "marco1",
-  "positiveVotes": [],
-  "negativeVotes": [],
-  "comments": {}
-}
+
 ]

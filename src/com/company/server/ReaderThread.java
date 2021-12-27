@@ -82,6 +82,14 @@ public class ReaderThread implements Runnable {
                     System.out.println("View Blog request");
                     result = performBlog();
                 }
+                case "delete" -> {
+                    System.out.println("Delete post request");
+                    result = performDelete(splitReq);
+                }
+                case "rewin" -> {
+                    System.out.println("Rewin post request");
+                    result = performRewin(splitReq);
+                }
                 default -> result = "< " + request + "operation is not supported";
             }
         } catch (IOException e) {
@@ -98,6 +106,64 @@ public class ReaderThread implements Runnable {
         }
         selector.wakeup();
         System.out.println("End ReaderThread");
+    }
+
+    private String performRewin(String[] splitReq) {
+        if (splitReq.length < 2) return "< You're missing some show arguments";
+        if (!isUserLogged()) return "< You must login to do this operation";
+        // Check if post exists
+        Post post = signInService.getPost(splitReq[1]);
+        if (post == null) return "< post " + splitReq[1] + " does not exist";
+        if (post.getAuthor().equals(loggedUser)) return "< You cannot rewin your post";
+
+        // Generate rewin post id
+        Post rewinPost = new Post(signInService.getNewId(), post.getTitle(), post.getContent(), loggedUser);
+
+        // Add rewin post id into the original post
+        post.addRewin(rewinPost.getId());
+
+        // Add rewin post
+        signInService.addPost(rewinPost);
+
+        // For now write into the json
+        PersistentOperator.persistentWrite(
+                signInService.getStorage(),
+                signInService.getPosts(),
+                "users.json",
+                "posts.json");
+
+        return "< Succesfully post rewin";
+    }
+
+    private String performDelete(String[] splitReq) {
+        if (splitReq.length < 2) return "< You're missing some show arguments";
+        if (!isUserLogged()) return "< You must login to do this operation";
+        // Check if post exists
+        Post post = signInService.getPost(splitReq[1]);
+        if (post == null) return "< post " + splitReq[1] + " does not exist";
+
+        // At this point post exists
+        // Check if the author of this post is the logged user
+        // otherwise return error
+        if (!post.getAuthor().equals(loggedUser)) return "< You're not the author of this post";
+
+        synchronized (signInService.getPosts()) {
+            // Before removing post itself, we have to delete rewins
+            for (String rewinPostId: signInService.getPost(post.getId()).getRewins()) {
+                // remove rewin with id = rewinPostId
+                signInService.getPosts().remove(rewinPostId);
+            }
+            signInService.getPosts().remove(post.getId());
+        }
+
+        // For now write into the json
+        PersistentOperator.persistentWrite(
+                signInService.getStorage(),
+                signInService.getPosts(),
+                "users.json",
+                "posts.json");
+
+        return "< Post " + splitReq[1] + " successfully deleted";
     }
 
     private String performBlog() {

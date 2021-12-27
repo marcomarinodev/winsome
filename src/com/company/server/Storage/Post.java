@@ -14,6 +14,8 @@ public class Post {
     private List<String> positiveVotes;
     // List of users that has negative vote on this post
     private List<String> negativeVotes;
+    // List of post ids that rewined this post
+    private List<String> rewins;
     private ConcurrentHashMap<String, String> comments;
 
     public Post(int id, String title, String content, String author) {
@@ -23,6 +25,7 @@ public class Post {
         this.author = author;
         positiveVotes = new ArrayList<>();
         negativeVotes = new ArrayList<>();
+        rewins = new ArrayList<>();
         comments = new ConcurrentHashMap<String, String>();
     }
 
@@ -77,5 +80,17 @@ public class Post {
 
     public boolean userAlreadyVoted(String username) {
         return positiveVotes.contains(username) || negativeVotes.contains(username);
+    }
+
+    public List<String> getRewins() {
+        return rewins;
+    }
+
+    public void addRewin(String postId) {
+        rewins.add(postId);
+    }
+
+    public void removeRewin(String postId) {
+        rewins.remove(postId);
     }
 }

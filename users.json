@@ -24,7 +24,9 @@
     "c++",
     "kotlin"
   ],
-  "postIds": [],
+  "postIds": [
+    "2"
+  ],
   "followers": [
     "linda000",
     "marco1"
@@ -58,7 +60,8 @@
   ],
   "postIds": [
     "1",
-    "2"
+    "2",
+    "1"
   ],
   "followers": [
     "linda000",
