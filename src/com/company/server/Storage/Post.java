@@ -4,7 +4,6 @@ import com.company.server.Utils.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Post {
@@ -19,6 +18,12 @@ public class Post {
     // List of post ids that rewined this post
     private List<String> rewins;
     private List<Pair<String, String>> comments;
+    // Compensation
+    private int rewardIterations = 0;
+    private List<String> recentPositiveVotes;
+    private List<String> recentNegativeVotes;
+    // Integer stays for the number of times that the key wrote comments on this post
+    private ConcurrentHashMap<String, Integer> recentComments;
 
     public Post(int id, String title, String content, String author) {
         this.id = String.valueOf(id);
@@ -29,6 +34,9 @@ public class Post {
         negativeVotes = new ArrayList<>();
         rewins = new ArrayList<>();
         comments = new ArrayList<>();
+        recentPositiveVotes = new ArrayList<>();
+        recentNegativeVotes = new ArrayList<>();
+        recentComments = new ConcurrentHashMap<>();
     }
 
     public String getId() {
@@ -57,6 +65,7 @@ public class Post {
 
     public void addPositiveVote(String username) {
         positiveVotes.add(username);
+        addRecentPositiveVote(username);
     }
 
     public void removePositiveVote(String username) {
@@ -65,6 +74,7 @@ public class Post {
 
     public void addNegativeVote(String username) {
         negativeVotes.add(username);
+        addRecentNegativeVote(username);
     }
 
     public void removeNegativeVote(String username) {
@@ -98,5 +108,55 @@ public class Post {
 
     public void addComment(String author, String content) {
         comments.add(new Pair<>(author, content));
+        addRecentComment(author);
+    }
+
+    public int getRewardIterations() {
+        return rewardIterations;
+    }
+
+    public void addIteration() {
+        this.rewardIterations++;
+    }
+
+    public List<String> getRecentPositiveVotes() {
+        return recentPositiveVotes;
+    }
+
+    private void addRecentPositiveVote(String username) {
+        this.recentPositiveVotes.add(username);
+    }
+
+    public void clearRecentPositiveVotes() {
+        this.recentPositiveVotes.clear();
+    }
+
+    public List<String> getRecentNegativeVotes() {
+        return recentNegativeVotes;
+    }
+
+    private void addRecentNegativeVote(String username) {
+        this.recentNegativeVotes.add(username);
+    }
+
+    public void clearRecentNegativeVotes() {
+        this.recentNegativeVotes.clear();
+    }
+
+    public ConcurrentHashMap<String, Integer> getRecentComments() {
+        return recentComments;
+    }
+
+    private void addRecentComment(String username) {
+        int nUserCommented = 0;
+        for (Pair<String, String> comment : comments) {
+            if (comment.getLeft().equals(username))
+                nUserCommented++;
+        }
+        this.recentComments.put(username, nUserCommented);
+    }
+
+    public void clearRecentComments() {
+        this.recentComments.clear();
     }
 }

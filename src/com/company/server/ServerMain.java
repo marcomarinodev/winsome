@@ -43,6 +43,8 @@ public class ServerMain {
             System.out.println("Raised exception " + e);
         }
 
+        pool.execute(new RewardCalculator(10, signInService));
+
         try (ServerSocketChannel serverSocket = ServerSocketChannel.open();
                 Selector selector = Selector.open()) {
 

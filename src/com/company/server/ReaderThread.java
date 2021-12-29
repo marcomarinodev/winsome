@@ -94,6 +94,10 @@ public class ReaderThread implements Runnable {
                     System.out.println("Comment post request");
                     result = performComment(request);
                 }
+                case "wallet" -> {
+                    System.out.println("Wallet request");
+                    result = performWallet();
+                }
                 default -> result = "< " + request + "operation is not supported";
             }
         } catch (IOException e) {
@@ -110,6 +114,12 @@ public class ReaderThread implements Runnable {
         }
         selector.wakeup();
         System.out.println("End ReaderThread");
+    }
+
+    private String performWallet() {
+        User loggedUserObj = signInService.getStorage().get(loggedUser);
+
+        return "< you have " + loggedUserObj.getTotalCompensation() + " wincoins!";
     }
 
     private String performComment(String request) {

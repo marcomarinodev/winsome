@@ -1,76 +1,113 @@
 [
 {
-  "username": "linda000",
-  "encryptedPassword": "e57e4b1f198ce52179c79d238ef91ec35a502ef871685d8e7ae1358511a1626f",
-  "tags": [
-    "swift",
-    "cats",
-    "dogs"
-  ],
-  "postIds": [],
-  "followers": [
-    "andre1"
-  ],
-  "followings": [
-    "marco1",
-    "andre1"
-  ]
-},
-{
   "username": "andre1",
   "encryptedPassword": "e57e4b1f198ce52179c79d238ef91ec35a502ef871685d8e7ae1358511a1626f",
   "tags": [
-    "swift",
-    "c++",
-    "kotlin"
+    "sre",
+    "management"
   ],
-  "postIds": [
-    "2",
-    "1"
-  ],
-  "followers": [
-    "linda000",
-    "marco1"
-  ],
+  "postIds": [],
+  "followers": [],
   "followings": [
-    "ema1",
-    "linda000",
     "marco1"
-  ]
+  ],
+  "totalCompensation": 0.0,
+  "wallet": 0.0
+},
+{
+  "username": "linda1",
+  "encryptedPassword": "e57e4b1f198ce52179c79d238ef91ec35a502ef871685d8e7ae1358511a1626f",
+  "tags": [
+    "art"
+  ],
+  "postIds": [],
+  "followers": [],
+  "followings": [
+    "marco1"
+  ],
+  "totalCompensation": 0.0,
+  "wallet": 0.0
 },
 {
   "username": "ema1",
   "encryptedPassword": "e57e4b1f198ce52179c79d238ef91ec35a502ef871685d8e7ae1358511a1626f",
   "tags": [
-    "java",
-    "swift"
+    "pizza",
+    "sre"
   ],
   "postIds": [],
-  "followers": [
-    "andre1"
-  ],
+  "followers": [],
   "followings": [
     "marco1"
-  ]
+  ],
+  "totalCompensation": 0.0,
+  "wallet": 0.0
+},
+{
+  "username": "jade1",
+  "encryptedPassword": "e57e4b1f198ce52179c79d238ef91ec35a502ef871685d8e7ae1358511a1626f",
+  "tags": [
+    "sre",
+    "google"
+  ],
+  "postIds": [],
+  "followers": [],
+  "followings": [
+    "marco1"
+  ],
+  "totalCompensation": 0.0,
+  "wallet": 0.0
 },
 {
   "username": "marco1",
   "encryptedPassword": "e57e4b1f198ce52179c79d238ef91ec35a502ef871685d8e7ae1358511a1626f",
   "tags": [
-    "swift"
+    "swe",
+    "sre"
   ],
   "postIds": [
     "1",
-    "2",
-    "1"
+    "2"
   ],
   "followers": [
-    "linda000",
     "andre1",
-    "ema1"
+    "ema1",
+    "linda1",
+    "jade1",
+    "deb1",
+    "frank1"
   ],
+  "followings": [],
+  "totalCompensation": 0.7081713745076421,
+  "wallet": 0.0
+},
+{
+  "username": "frank1",
+  "encryptedPassword": "e57e4b1f198ce52179c79d238ef91ec35a502ef871685d8e7ae1358511a1626f",
+  "tags": [
+    "cars",
+    "mechanic"
+  ],
+  "postIds": [],
+  "followers": [],
   "followings": [
-    "andre1"
-  ]
+    "marco1"
+  ],
+  "totalCompensation": 0.0,
+  "wallet": 0.0
+},
+{
+  "username": "deb1",
+  "encryptedPassword": "e57e4b1f198ce52179c79d238ef91ec35a502ef871685d8e7ae1358511a1626f",
+  "tags": [
+    "cooking"
+  ],
+  "postIds": [],
+  "followers": [],
+  "followings": [
+    "marco1"
+  ],
+  "totalCompensation": 0.0,
+  "wallet": 0.0
 }
 ]

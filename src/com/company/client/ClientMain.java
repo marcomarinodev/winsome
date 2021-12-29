@@ -6,7 +6,10 @@ import com.company.server.SignInHandler;
 import com.company.server.Utils.Pair;
 
 import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.MulticastSocket;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.rmi.registry.LocateRegistry;
@@ -19,6 +22,7 @@ import java.util.Scanner;
 public class ClientMain {
 
     public static int port = 12120;
+    public static int udpPort = 12122;
     public static String serviceName = "RMISignIn";
     public static final String hostname = "localhost";
     public static final int bufferSize = 32 * 1024;
@@ -26,6 +30,7 @@ public class ClientMain {
     public static List<Pair<String, String>> followers = new ArrayList<>();
     public static ServerAsyncInterface server = null;
     public static NotifyEventInterface stub = null;
+    public static WalletReceiver walletReceiver = new WalletReceiver(udpPort, 1024, "239.255.32.32");
 
     public static void main(String[] args) {
         SocketChannel cl = null;
@@ -89,6 +94,7 @@ public class ClientMain {
         if (args[0].equals("logout")) {
             loggedUsername = "";
             followers.clear();
+            walletReceiver.stop();
         }
 
         try {
@@ -129,6 +135,7 @@ public class ClientMain {
                 }
 
                 if (splitResponse[splitResponse.length - 1].equals("< " + loggedUsername + " logged in")) {
+                    // Register for notifications
                     try {
                         System.out.println("Searching notification server");
                         Registry registry = LocateRegistry.getRegistry(5000);
@@ -140,8 +147,10 @@ public class ClientMain {
                         stub = (NotifyEventInterface) UnicastRemoteObject.exportObject(callbackObj, 0);
                         server.registerForCallback(stub);
                     } catch (Exception e) {
-                        System.out.println("Client exception " + e.getMessage());
+                        System.err.println("Client exception " + e.getMessage());
                     }
+
+                    walletReceiver.start();
                 }
             } else {
                 if (server != null && stub != null)

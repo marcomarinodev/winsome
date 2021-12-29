@@ -1,25 +1,85 @@
 [
 {
   "id": "1",
-  "title": "Example",
-  "content": "Post Example",
-  "author": "andre1",
-  "positiveVotes": [],
-  "negativeVotes": [],
+  "title": "IL MIO POST",
+  "content": "Ciao a tutti questo è il mio primo post",
+  "author": "marco1",
+  "positiveVotes": [
+    "andre1",
+    "ema1",
+    "linda1",
+    "jade1",
+    "deb1"
+  ],
+  "negativeVotes": [
+    "frank1"
+  ],
   "rewins": [],
   "comments": [
     {
       "left": "andre1",
-      "right": "bello"
+      "right": "What a post!"
     },
     {
-      "left": "marco1",
-      "right": "wow"
+      "left": "ema1",
+      "right": "I agree"
     },
     {
-      "left": "marco1",
-      "right": "la vita è bella"
+      "left": "ema1",
+      "right": "Just in time"
+    },
+    {
+      "left": "linda1",
+      "right": "Bravissimo"
+    },
+    {
+      "left": "jade1",
+      "right": "This post wow!"
+    },
+    {
+      "left": "deb1",
+      "right": "What a post"
+    },
+    {
+      "left": "deb1",
+      "right": "Yep sc"
     }
-  ]
+  ],
+  "rewardIterations": 129,
+  "recentPositiveVotes": [],
+  "recentNegativeVotes": [],
+  "recentComments": {}
+},
+{
+  "id": "2",
+  "title": "Another One",
+  "content": "Check this out!",
+  "author": "marco1",
+  "positiveVotes": [
+    "deb1",
+    "linda1"
+  ],
+  "negativeVotes": [
+    "frank1"
+  ],
+  "rewins": [],
+  "comments": [
+    {
+      "left": "frank1",
+      "right": "Ni"
+    },
+    {
+      "left": "deb1",
+      "right": "Cool"
+    },
+    {
+      "left": "linda1",
+      "right": "Wonderful"
+    }
+  ],
+  "rewardIterations": 85,
+  "recentPositiveVotes": [],
+  "recentNegativeVotes": [],
+  "recentComments": {}
 }
 ]

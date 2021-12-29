@@ -13,6 +13,8 @@ public class User {
     private ArrayList<String> postIds = new ArrayList<>();
     private ArrayList<String> followers = new ArrayList<>();
     private ArrayList<String> followings = new ArrayList<>();
+    private double totalCompensation = 0;
+    private double wallet = 0;
 
     public User(String username, String password, ArrayList<String> tags) {
         this.username = username;
@@ -148,5 +150,22 @@ public class User {
 
     public boolean removePost(String postId) {
         return postIds.remove(postId);
+    }
+
+    public double getTotalCompensation() {
+        return totalCompensation;
+    }
+
+    public void setTotalCompensation(double totalCompensation) {
+        if (totalCompensation >= 0) this.totalCompensation = totalCompensation;
+        else this.totalCompensation = 0;
+    }
+
+    public double getWallet() {
+        return wallet;
+    }
+
+    public void setWallet(double totalCompensation) {
+        this.wallet = wallet;
     }
 }
