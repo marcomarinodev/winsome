@@ -1,7 +1,6 @@
 # winsome
 a reWardINg SOcial Media
 ### TODO
-- [ ] Use URL to get a random seed in order to simulate BTC Trend
 - [ ] (FIX) Use a set instead of a list to keep recent people that commented/voted
   - That's because a user can comment n > 1 times in the update time interval
 - [ ] Configuration file parsing
@@ -36,6 +35,7 @@ a reWardINg SOcial Media
 - [X] Add comments
 - [X] Update Wallet values
   - [X] UDP Multicast to spread Wallet updates
+- [X] Use URL to get a random seed in order to simulate BTC Trend
 
 ### POLISH
 - [ ] Divide server -> client output in reasonable quantity of pieces

@@ -5,7 +5,10 @@ import com.company.server.Storage.User;
 import com.company.server.Utils.NIOHelper;
 import com.company.server.Utils.PersistentOperator;
 
-import java.io.IOException;
+import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
@@ -23,6 +26,7 @@ public class ReaderThread implements Runnable {
     private Selector selector;
     private ServerAsyncImpl asyncServer;
     private String loggedUser;
+    private String randomURL = "https://www.random.org/decimal-fractions/?num=1&dec=5&col=2&format=plain&rnd=new";
 
     ReaderThread(SelectionKey key, SignInServiceImpl signInService, Selector selector, ServerAsyncImpl asyncServer) {
         this.key = key;
@@ -96,7 +100,7 @@ public class ReaderThread implements Runnable {
                 }
                 case "wallet" -> {
                     System.out.println("Wallet request");
-                    result = performWallet();
+                    result = performWalletOperation(splitReq);
                 }
                 default -> result = "< " + request + "operation is not supported";
             }
@@ -116,10 +120,48 @@ public class ReaderThread implements Runnable {
         System.out.println("End ReaderThread");
     }
 
-    private String performWallet() {
+    private String performWalletOperation(String[] splitReq) {
+        if (!isUserLogged()) return "< You must login to do this operation";
         User loggedUserObj = signInService.getStorage().get(loggedUser);
 
-        return "< you have " + loggedUserObj.getTotalCompensation() + " wincoins!";
+        if (splitReq.length == 1) {
+            return "< you have " + loggedUserObj.getTotalCompensation() + " wincoins!";
+        }
+
+        // Client requested wallet btc
+        try {
+            // set default encoding
+            String encoding = "ISO-8859-1";
+            URL u = new URL(randomURL);
+            URLConnection uc = u.openConnection();
+            String contentType = uc.getContentType();
+            System.out.println("contenttype"+contentType);
+            int encodingStart = contentType.indexOf("charset=");
+            if (encodingStart != -1) {
+                encoding = contentType.substring(encodingStart + 8);
+            }
+            System.out.println("encoding"+encoding);
+            InputStream in = new BufferedInputStream(uc.getInputStream());
+            Reader r = new InputStreamReader(in, encoding);
+            int c;
+            StringBuilder stringBuilder = new StringBuilder();
+            while ((c = r.read()) != -1) {
+                stringBuilder.append((char) c);
+            }
+            r.close();
+            Double btcValue = Double.valueOf(stringBuilder.toString());
+            return "< " + btcValue + " BTC";
+        } catch (MalformedURLException ex) {
+            System.err.println(randomURL + " is not a parseable URL");
+        } catch (UnsupportedEncodingException ex) {
+            System.err.println(
+                    "Server sent an encoding Java does not support: " +
+                        ex.getMessage());
+        } catch (IOException ex) {
+            System.err.println(ex);
+        }
+
+        return "";
     }
 
     private String performComment(String request) {
