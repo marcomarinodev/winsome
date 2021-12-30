@@ -7,7 +7,9 @@
     "management"
   ],
   "postIds": [],
-  "followers": [],
+  "followers": [
+    "marco1"
+  ],
   "followings": [
     "marco1"
   ],
@@ -20,7 +22,9 @@
   "tags": [
     "art"
   ],
-  "postIds": [],
+  "postIds": [
+    "3"
+  ],
   "followers": [],
   "followings": [
     "marco1"
@@ -35,12 +39,17 @@
     "pizza",
     "sre"
   ],
-  "postIds": [],
-  "followers": [],
+  "postIds": [
+    "4",
+    "5"
+  ],
+  "followers": [
+    "marco1"
+  ],
   "followings": [
     "marco1"
   ],
-  "totalCompensation": 0.0,
+  "totalCompensation": 0.34657359027997264,
   "wallet": 0.0
 },
 {
@@ -71,14 +80,17 @@
   ],
   "followers": [
     "andre1",
-    "ema1",
     "linda1",
     "jade1",
     "deb1",
-    "frank1"
+    "frank1",
+    "ema1"
   ],
-  "followings": [],
-  "totalCompensation": 0.7081713745076421,
+  "followings": [
+    "ema1",
+    "andre1"
+  ],
+  "totalCompensation": 0.7104514639173788,
   "wallet": 0.0
 },
 {

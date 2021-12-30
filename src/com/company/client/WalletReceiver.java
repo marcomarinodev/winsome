@@ -10,7 +10,7 @@ public class WalletReceiver implements Runnable {
     int udpPort;
     int byteSize;
     String hostname;
-    private Thread worker;
+    public Thread worker;
     private final AtomicBoolean running = new AtomicBoolean(false);
 
     public WalletReceiver(int udpPort, int byteSize, String hostname) {
@@ -26,6 +26,8 @@ public class WalletReceiver implements Runnable {
 
     public void stop() {
         running.set(false);
+        System.out.println("Interrupting the thread");
+        worker.interrupt();
     }
 
     public void run() {
@@ -43,10 +45,14 @@ public class WalletReceiver implements Runnable {
                 DatagramPacket packet = new DatagramPacket(new byte[1024], 1024);
 
                 multiSocket.receive(packet);
-                System.out.println(new String(packet.getData(), packet.getOffset(), packet.getLength()) + "\n> ");
+
+                if (running.get()) {
+                    System.out.println(new String(packet.getData(), packet.getOffset(), packet.getLength()) + "\n> ");
+                }
             } catch (Exception e) {
                 System.err.println("Client exception: " + e.getMessage());
             }
         }
+        System.out.println("Stopped receiving wallet notifications");
     }
 }

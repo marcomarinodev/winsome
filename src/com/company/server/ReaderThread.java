@@ -102,6 +102,14 @@ public class ReaderThread implements Runnable {
                     System.out.println("Wallet request");
                     result = performWalletOperation(splitReq);
                 }
+                case "exit" -> {
+                    System.out.println("Exit request");
+                    if (isUserLogged()) {
+                        String key = getKey(signInService.getLoggedUsers(), client.socket());
+                        signInService.removeLoggedUser(key);
+                    }
+                    result = "< Goodbye!";
+                }
                 default -> result = "< " + request + "operation is not supported";
             }
         } catch (IOException e) {
@@ -189,7 +197,6 @@ public class ReaderThread implements Runnable {
     }
 
     private String performRewin(String[] splitReq) {
-        if (splitReq.length < 2) return "< You're missing some show arguments";
         if (!isUserLogged()) return "< You must login to do this operation";
         // Check if post exists
         Post post = signInService.getPost(splitReq[1]);
@@ -216,7 +223,6 @@ public class ReaderThread implements Runnable {
     }
 
     private String performDelete(String[] splitReq) {
-        if (splitReq.length < 2) return "< You're missing some show arguments";
         if (!isUserLogged()) return "< You must login to do this operation";
         // Check if post exists
         Post post = signInService.getPost(splitReq[1]);
@@ -264,7 +270,6 @@ public class ReaderThread implements Runnable {
     }
 
     private String performShowOperation(String[] splitReq) {
-        if (splitReq.length < 2) return "< You're missing some show arguments";
         if (splitReq[1].equals("post")) {
             return performShowPost(splitReq);
         } else if (splitReq[1].equals("feed")) {
@@ -278,8 +283,8 @@ public class ReaderThread implements Runnable {
         if (!isUserLogged()) return "< You must login to do this operation";
         List<Post> filteredPosts = new ArrayList<>();
         User loggedUserObj = signInService.getStorage().get(loggedUser);
-        for (String follower: loggedUserObj.getFollowers()) {
-            filteredPosts.addAll(signInService.getPostsOf(follower));
+        for (String following: loggedUserObj.getFollowings()) {
+            filteredPosts.addAll(signInService.getPostsOf(following));
         }
 
         Collections.shuffle(filteredPosts);
@@ -372,7 +377,6 @@ public class ReaderThread implements Runnable {
 
 
     private String performFollow(String[] splitReq) {
-        if (checkListArgsCount(splitReq)) return "< list has not enough parameters";
         if (!isUserLogged()) return "< You must login to do this operation";
         if (!existsUser(splitReq[1])) return "< " + splitReq[1] + " does not exist";
 
@@ -410,7 +414,6 @@ public class ReaderThread implements Runnable {
     }
 
     private String performUnfollow(String[] splitReq) {
-        if (checkListArgsCount(splitReq)) return "< list has not enough parameters";
         if (!isUserLogged()) return "< You must login in order to do this operation";
         if (!existsUser(splitReq[1])) return "< " + splitReq[1] + " does not exist";
 
@@ -448,7 +451,6 @@ public class ReaderThread implements Runnable {
     }
 
     private String performListOperation(String[] splitReq) throws IOException {
-        if (checkListArgsCount(splitReq)) return "< list has not enough parameters";
         if (!isUserLogged()) return "< You must login in order to do this operation";
 
         StringBuilder stringBuilder = new StringBuilder();

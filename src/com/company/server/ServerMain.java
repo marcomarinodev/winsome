@@ -31,6 +31,13 @@ public class ServerMain {
 
         SignInServiceImpl signInService = getInService();
 
+        // Shutdown Hook
+        Runtime.getRuntime().addShutdownHook(
+                new Thread(
+                        () -> System.out.println("Server is closing...")
+                )
+        );
+
         try {
             asyncServer = new ServerAsyncImpl();
             ServerAsyncInterface stub = (ServerAsyncInterface) UnicastRemoteObject.exportObject(asyncServer, 39000);

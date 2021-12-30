@@ -58,7 +58,7 @@ public class RewardCalculator implements Runnable {
                         revenue = (Math.log(newPeopleLikesLogArg + 1) + Math.log(newPeopleCommentingLogArg + 1)) / nIterations;
 
                         // Send via udp multicast the compensation action
-                        byte[] content = "\n< Wallet updated!".getBytes();
+                        byte[] content = "".getBytes();
                         DatagramPacket packet = new DatagramPacket(content, content.length, group, 33333);
 
                         multiSocket.send(packet);
@@ -72,6 +72,8 @@ public class RewardCalculator implements Runnable {
 
                         // Add iteration
                         post.addIteration();
+
+                        // TODO: Persistent writing on users and posts JSONs
                     }
                 }
 

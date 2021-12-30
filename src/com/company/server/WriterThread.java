@@ -31,10 +31,18 @@ public class WriterThread implements Runnable {
             e.printStackTrace();
         }
 
-        try {
-            key.channel().register(selector, SelectionKey.OP_READ);
-        } catch (ClosedChannelException e) {
-            e.printStackTrace();
+        if (!message.equals("< Goodbye!")) {
+            try {
+                key.channel().register(selector, SelectionKey.OP_READ);
+            } catch (ClosedChannelException e) {
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                key.channel().close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         selector.wakeup();
     }
