@@ -6,7 +6,7 @@ a reWardINg SOcial Media
 - [ ] Configuration file parsing
 - [ ] After log in it is not possible to register, you must log out
 - [ ] Set socket timeout
-- [ ] Fix prints
+- [ ] (FIX) prints
 - [ ] Soft client stop
 - [ ] Soft server stop
 
