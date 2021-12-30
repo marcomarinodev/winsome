@@ -2,6 +2,7 @@ package com.company.server;
 
 import com.company.server.Interfaces.ServerAsyncInterface;
 import com.company.server.Interfaces.SignInService;
+import com.company.server.Utils.PersistentOperator;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -34,7 +35,14 @@ public class ServerMain {
         // Shutdown Hook
         Runtime.getRuntime().addShutdownHook(
                 new Thread(
-                        () -> System.out.println("Server is closing...")
+                        () -> {
+                            PersistentOperator.persistentWrite(
+                                    signInService.getStorage(),
+                                    signInService.getPosts(),
+                                    "users.json",
+                                    "posts.json");
+                            System.out.println("Server is closing...");
+                        }
                 )
         );
 

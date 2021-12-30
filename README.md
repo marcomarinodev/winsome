@@ -36,6 +36,7 @@ a reWardINg SOcial Media
 - [X] Update Wallet values
   - [X] UDP Multicast to spread Wallet updates
 - [X] Use URL to get a random seed in order to simulate BTC Trend
+- [X] JSONs are rewritten after a certain delta time to reduce writing overhead
 
 ### POLISH
 - [ ] Divide server -> client output in reasonable quantity of pieces
@@ -43,9 +44,7 @@ a reWardINg SOcial Media
 - [ ] Refactor SignInService it has too responsibilities
 - [ ] ReaderThread class has a lot of responsibilities, I have to refactor and make a Helper class
 - [ ] Some check args functions are repeated, It will be better to extract them to methods
-- [ ] It will be better if jsons are rewritten not after every data changes, but after a certain amount of time in order to reduce writing overhead
 - [ ] Put synchronized blocks in the right places
 - [ ] Make a better arrangement of responses
-- [ ] Refactor Client's class
 - [ ] Make client operation arguments checking on client side
 - [ ] JavaDoc

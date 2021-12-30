@@ -3,7 +3,6 @@ package com.company.server;
 import com.company.server.Storage.Post;
 import com.company.server.Storage.User;
 import com.company.server.Utils.NIOHelper;
-import com.company.server.Utils.PersistentOperator;
 
 import java.io.*;
 import java.net.MalformedURLException;
@@ -186,13 +185,6 @@ public class ReaderThread implements Runnable {
 
         post.addComment(loggedUser, comment);
 
-        // For now write into the json
-        PersistentOperator.persistentWrite(
-                signInService.getStorage(),
-                signInService.getPosts(),
-                "users.json",
-                "posts.json");
-
         return "< You just commented successfully";
     }
 
@@ -211,13 +203,6 @@ public class ReaderThread implements Runnable {
 
         // Add rewin post
         signInService.addPost(rewinPost);
-
-        // For now write into the json
-        PersistentOperator.persistentWrite(
-                signInService.getStorage(),
-                signInService.getPosts(),
-                "users.json",
-                "posts.json");
 
         return "< Succesfully post rewin";
     }
@@ -241,13 +226,6 @@ public class ReaderThread implements Runnable {
             }
             signInService.getPosts().remove(post.getId());
         }
-
-        // For now write into the json
-        PersistentOperator.persistentWrite(
-                signInService.getStorage(),
-                signInService.getPosts(),
-                "users.json",
-                "posts.json");
 
         return "< Post " + splitReq[1] + " successfully deleted";
     }
@@ -359,12 +337,6 @@ public class ReaderThread implements Runnable {
         String x = addPostToDataStructures(loggedUser, newPost);
         if (x != null) return x;
 
-        PersistentOperator.persistentWrite(
-                signInService.getStorage(),
-                signInService.getPosts(),
-                "users.json",
-                "posts.json");
-
         return "< Created new post (id=" + newPost.getId() + ")";
     }
 
@@ -404,12 +376,6 @@ public class ReaderThread implements Runnable {
             e.printStackTrace();
         }
 
-        PersistentOperator.persistentWrite(
-                signInService.getStorage(),
-                signInService.getPosts(),
-                "users.json",
-                "posts.json");
-
         return "< now you follow " + toFollowUser;
     }
 
@@ -440,12 +406,6 @@ public class ReaderThread implements Runnable {
         } catch (RemoteException e) {
             e.printStackTrace();
         }
-
-        PersistentOperator.persistentWrite(
-                signInService.getStorage(),
-                signInService.getPosts(),
-                "users.json",
-                "posts.json");
 
         return "< now you're not following " + toUnfollowUser;
     }

@@ -47,7 +47,7 @@
       "right": "Yep sc"
     }
   ],
-  "rewardIterations": 410,
+  "rewardIterations": 416,
   "recentPositiveVotes": [],
   "recentNegativeVotes": [],
   "recentComments": {}
@@ -80,7 +80,7 @@
       "right": "Wonderful"
     }
   ],
-  "rewardIterations": 366,
+  "rewardIterations": 372,
   "recentPositiveVotes": [],
   "recentNegativeVotes": [],
   "recentComments": {}
@@ -94,21 +94,21 @@
   "negativeVotes": [],
   "rewins": [],
   "comments": [],
-  "rewardIterations": 75,
+  "rewardIterations": 81,
   "recentPositiveVotes": [],
   "recentNegativeVotes": [],
   "recentComments": {}
 },
 {
-  "id": "5",
-  "title": "IL MIO POST",
-  "content": "Ciao a tutti questo è il mio primo post",
+  "id": "4",
+  "title": "WOW",
+  "content": "che bello",
   "author": "ema1",
   "positiveVotes": [],
   "negativeVotes": [],
   "rewins": [],
   "comments": [],
-  "rewardIterations": 11,
+  "rewardIterations": 0,
   "recentPositiveVotes": [],
   "recentNegativeVotes": [],
   "recentComments": {}
