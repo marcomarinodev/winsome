@@ -25,6 +25,7 @@ public class WriterThread implements Runnable {
     @Override
     public void run() {
         System.out.println("Writer thread");
+        System.out.println("==> " + message);
         try {
             NIOHelper.writeResponse(message, client);
         } catch (IOException e) {

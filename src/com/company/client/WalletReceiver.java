@@ -33,7 +33,7 @@ public class WalletReceiver implements Runnable {
     public void run() {
         running.set(true);
         while (running.get()) {
-            try (MulticastSocket multiSocket = new MulticastSocket(33333)) {
+            try (MulticastSocket multiSocket = new MulticastSocket(6230)) {
                 // Get group address and check validity
                 InetAddress group = InetAddress.getByName("239.255.32.32");
                 if (!group.isMulticastAddress()) {

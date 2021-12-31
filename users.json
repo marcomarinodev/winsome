@@ -1,5 +1,17 @@
 [
 {
+  "username": "pippo1",
+  "encryptedPassword": "e57e4b1f198ce52179c79d238ef91ec35a502ef871685d8e7ae1358511a1626f",
+  "tags": [
+    "pippo"
+  ],
+  "postIds": [],
+  "followers": [],
+  "followings": [],
+  "totalCompensation": 0.0,
+  "wallet": 0.0
+},
+{
   "username": "andre1",
   "encryptedPassword": "e57e4b1f198ce52179c79d238ef91ec35a502ef871685d8e7ae1358511a1626f",
   "tags": [
@@ -23,12 +35,30 @@
     "art"
   ],
   "postIds": [
-    "3"
+    "3",
+    "5",
+    "6",
+    "7"
   ],
-  "followers": [],
+  "followers": [
+    "marco1"
+  ],
   "followings": [
     "marco1"
   ],
+  "totalCompensation": 0.0,
+  "wallet": 0.0
+},
+{
+  "username": "carlo1",
+  "encryptedPassword": "e57e4b1f198ce52179c79d238ef91ec35a502ef871685d8e7ae1358511a1626f",
+  "tags": [
+    "pippo",
+    "juventus"
+  ],
+  "postIds": [],
+  "followers": [],
+  "followings": [],
   "totalCompensation": 0.0,
   "wallet": 0.0
 },
@@ -45,9 +75,7 @@
     "5",
     "4"
   ],
-  "followers": [
-    "marco1"
-  ],
+  "followers": [],
   "followings": [
     "marco1"
   ],
@@ -78,7 +106,9 @@
   ],
   "postIds": [
     "1",
-    "2"
+    "2",
+    "5",
+    "8"
   ],
   "followers": [
     "andre1",
@@ -89,8 +119,8 @@
     "ema1"
   ],
   "followings": [
-    "ema1",
-    "andre1"
+    "andre1",
+    "linda1"
   ],
   "totalCompensation": 0.7104514639173788,
   "wallet": 0.0

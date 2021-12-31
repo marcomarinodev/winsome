@@ -15,14 +15,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class SignInServiceImpl implements SignInService {
+public class StorageService implements SignInService {
 
     // Storage
     private final Map<String, User> storage;
     private final Map<String, Post> posts;
     private final Map<String, Socket> loggedUsers = new ConcurrentHashMap<>();
 
-    public SignInServiceImpl(String mex) {
+    public StorageService(String mex) {
         System.out.println("Retrieving users from users.json");
         Pair<Map<String,User>, Map<String, Post>> pair = PersistentOperator.persistentRead(
                 "users.json",
@@ -114,7 +114,15 @@ public class SignInServiceImpl implements SignInService {
 
     public Post getPost(String id) {return posts.get(id); }
 
-    public int getNewId() { return posts.size() + 1; }
+    public int getMaxPostId() {
+        int max = 1;
+        for (Map.Entry<String, Post> postEntry : posts.entrySet()) {
+            max = Math.max(Integer.valueOf(postEntry.getValue().getId()), max);
+        }
+        return max;
+    }
+
+    public int getNewId() { return getMaxPostId() + 1; }
 
     public void addLoggedUser(String username, Socket socket) {
         this.loggedUsers.put(username, socket);

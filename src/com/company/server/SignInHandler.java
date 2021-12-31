@@ -1,9 +1,7 @@
 package com.company.server;
 
 import com.company.SystemCodes;
-import com.company.client.ClientMain;
 import com.company.server.Interfaces.SignInService;
-import com.company.server.Storage.User;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -24,11 +22,14 @@ public class SignInHandler {
         System.out.println("Arguments are correct");
 
         try {
+            System.out.println("Error is here");
             // Get a reference of the registry
-            Registry registry = LocateRegistry.getRegistry(ClientMain.port);
+            Registry registry = LocateRegistry.getRegistry(6650);
+            System.out.println("Not here");
             // Get a reference of the SignInService
-            SignInService signInService = (SignInService) registry.lookup(ClientMain.serviceName);
+            SignInService signInService = (SignInService) registry.lookup("RMISignIn");
             // Invoke login/logout/register method based on operation
+            System.out.println("REGISTRATION OP");
             if (operation.equals("register")) {
                 String result = signInService.register(username, password, tags);
                 SystemCodes.printOperationResult(result, "registration");

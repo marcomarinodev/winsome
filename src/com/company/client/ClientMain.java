@@ -20,9 +20,8 @@ import java.util.Scanner;
 public class ClientMain {
 
     public static int port = 12120;
-    public static int udpPort = 12122;
-    public static String serviceName = "RMISignIn";
-    public static final String hostname = "localhost";
+    public static int udpPort = 6230;
+    public static final String hostname = "127.0.0.1";
     public static final int bufferSize = 32 * 1024;
     public static String loggedUsername = "";
     public static List<Pair<String, String>> followers = new ArrayList<>();
@@ -36,8 +35,16 @@ public class ClientMain {
         Boolean exit = false;
 
         try {
-            try (SocketChannel client = SocketChannel.open(new InetSocketAddress(hostname, port + 1))) {
+            try (SocketChannel client = SocketChannel.open(new InetSocketAddress(hostname, port))) {
                 cl = client;
+                Runtime.getRuntime().addShutdownHook(
+                        new Thread(
+                                () -> {
+                                    sendRequest(cl, new String[]{"exit"});
+                                    stopAsyncThreads();
+                                }
+                        )
+                );
                 while (!exit) {
                     Scanner scanner = new Scanner(System.in);
                     System.out.print("> ");
@@ -48,12 +55,10 @@ public class ClientMain {
                 cl.close();
             } catch (Exception e) {
                 System.out.println("< Server is not reachable");
-            } finally {
                 stopAsyncThreads();
             }
         } catch (Exception e) {
             System.err.println(e);
-        } finally {
             stopAsyncThreads();
         }
 
@@ -214,7 +219,7 @@ public class ClientMain {
             // Register for notifications
             try {
                 // Searching notification server
-                Registry registry = LocateRegistry.getRegistry(5000);
+                Registry registry = LocateRegistry.getRegistry(6230);
                 String name = "AsyncServer";
                 server = (ServerAsyncInterface) registry.lookup(name);
                 // registering for callback

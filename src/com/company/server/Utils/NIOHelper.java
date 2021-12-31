@@ -27,6 +27,7 @@ public class NIOHelper {
     public static void writeResponse(String message, SocketChannel client) throws IOException {
         ByteBuffer newBuffer = ByteBuffer.allocate(32 * 1024);
         byte[] mex = message.getBytes();
+
         newBuffer.clear();
         newBuffer.putInt(mex.length);
         newBuffer.put(mex);

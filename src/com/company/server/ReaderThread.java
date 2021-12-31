@@ -18,25 +18,39 @@ import java.util.*;
 
 public class ReaderThread implements Runnable {
 
+    // incoming client key
     private final SelectionKey key;
+    // incoming client channel
     private final SocketChannel client;
+    // client's request
     private final String request;
-    private final SignInServiceImpl signInService;
-    private Selector selector;
-    private ServerAsyncImpl asyncServer;
-    private String loggedUser;
-    private String randomURL = "https://www.random.org/decimal-fractions/?num=1&dec=5&col=2&format=plain&rnd=new";
+    // storage service to get users and posts and basic
+    // operations on them
+    private final StorageService storageService;
+    // given selector (to awake)
+    private final Selector selector;
+    // send async notifications
+    private final ServerAsyncImpl asyncServer;
+    // current logged user
+    private final String loggedUser;
 
-    ReaderThread(SelectionKey key, SignInServiceImpl signInService, Selector selector, ServerAsyncImpl asyncServer) {
+    /**
+     * @param key incoming client key
+     * @param storageService storage service to get users and posts and basic
+     *                       and operations on them
+     * @param selector given selector
+     * @param asyncServer async notifications server
+     */
+    ReaderThread(SelectionKey key, StorageService storageService, Selector selector, ServerAsyncImpl asyncServer) {
         this.key = key;
         this.client = (SocketChannel) key.channel();
         ByteBuffer byteBuffer = ByteBuffer.allocate(32 * 1024);
         key.attach(byteBuffer);
-        this.signInService = signInService;
+        this.storageService = storageService;
         this.selector = selector;
         request = NIOHelper.readRequest(key, (ByteBuffer) key.attachment());
         this.asyncServer = asyncServer;
-        loggedUser = getKey(signInService.getLoggedUsers(), client.socket());
+        loggedUser = getKey(storageService.getLoggedUsers(), client.socket());
     }
 
     @Override
@@ -104,8 +118,8 @@ public class ReaderThread implements Runnable {
                 case "exit" -> {
                     System.out.println("Exit request");
                     if (isUserLogged()) {
-                        String key = getKey(signInService.getLoggedUsers(), client.socket());
-                        signInService.removeLoggedUser(key);
+                        String key = getKey(storageService.getLoggedUsers(), client.socket());
+                        storageService.removeLoggedUser(key);
                     }
                     result = "< Goodbye!";
                 }
@@ -129,13 +143,14 @@ public class ReaderThread implements Runnable {
 
     private String performWalletOperation(String[] splitReq) {
         if (!isUserLogged()) return "< You must login to do this operation";
-        User loggedUserObj = signInService.getStorage().get(loggedUser);
+        User loggedUserObj = storageService.getStorage().get(loggedUser);
 
         if (splitReq.length == 1) {
             return "< you have " + loggedUserObj.getTotalCompensation() + " wincoins!";
         }
 
         // Client requested wallet btc
+        String randomURL = "https://www.random.org/decimal-fractions/?num=1&dec=5&col=2&format=plain&rnd=new";
         try {
             // set default encoding
             String encoding = "ISO-8859-1";
@@ -156,7 +171,7 @@ public class ReaderThread implements Runnable {
                 stringBuilder.append((char) c);
             }
             r.close();
-            Double btcValue = Double.valueOf(stringBuilder.toString());
+            double btcValue = Double.parseDouble(stringBuilder.toString());
             return "< " + btcValue + " BTC";
         } catch (MalformedURLException ex) {
             System.err.println(randomURL + " is not a parseable URL");
@@ -180,7 +195,7 @@ public class ReaderThread implements Runnable {
 
         if (!isUserLogged()) return "< You must login to do this operation";
         // Check if post exists
-        Post post = signInService.getPost(splitReq[1]);
+        Post post = storageService.getPost(splitReq[1]);
         if (post == null) return "< post " + splitReq[1] + " does not exist";
 
         post.addComment(loggedUser, comment);
@@ -191,18 +206,18 @@ public class ReaderThread implements Runnable {
     private String performRewin(String[] splitReq) {
         if (!isUserLogged()) return "< You must login to do this operation";
         // Check if post exists
-        Post post = signInService.getPost(splitReq[1]);
+        Post post = storageService.getPost(splitReq[1]);
         if (post == null) return "< post " + splitReq[1] + " does not exist";
         if (post.getAuthor().equals(loggedUser)) return "< You cannot rewin your post";
 
         // Generate rewin post id
-        Post rewinPost = new Post(signInService.getNewId(), post.getTitle(), post.getContent(), loggedUser);
+        Post rewinPost = new Post(storageService.getNewId(), "(rew) " + post.getTitle(), post.getContent(), loggedUser);
 
         // Add rewin post id into the original post
         post.addRewin(rewinPost.getId());
 
         // Add rewin post
-        signInService.addPost(rewinPost);
+        storageService.addPost(rewinPost);
 
         return "< Succesfully post rewin";
     }
@@ -210,7 +225,7 @@ public class ReaderThread implements Runnable {
     private String performDelete(String[] splitReq) {
         if (!isUserLogged()) return "< You must login to do this operation";
         // Check if post exists
-        Post post = signInService.getPost(splitReq[1]);
+        Post post = storageService.getPost(splitReq[1]);
         if (post == null) return "< post " + splitReq[1] + " does not exist";
 
         // At this point post exists
@@ -218,13 +233,13 @@ public class ReaderThread implements Runnable {
         // otherwise return error
         if (!post.getAuthor().equals(loggedUser)) return "< You're not the author of this post";
 
-        synchronized (signInService.getPosts()) {
+        synchronized (storageService.getPosts()) {
             // Before removing post itself, we have to delete rewins
-            for (String rewinPostId: signInService.getPost(post.getId()).getRewins()) {
+            for (String rewinPostId: storageService.getPost(post.getId()).getRewins()) {
                 // remove rewin with id = rewinPostId
-                signInService.getPosts().remove(rewinPostId);
+                storageService.getPosts().remove(rewinPostId);
             }
-            signInService.getPosts().remove(post.getId());
+            storageService.getPosts().remove(post.getId());
         }
 
         return "< Post " + splitReq[1] + " successfully deleted";
@@ -232,7 +247,7 @@ public class ReaderThread implements Runnable {
 
     private String performBlog() {
         if (!isUserLogged()) return "< You must login to do this operation";
-        List<Post> posts = signInService.getPostsOf(loggedUser);
+        List<Post> posts = storageService.getPostsOf(loggedUser);
         StringBuilder stringBuilder = new StringBuilder();
 
         for (Post post: posts) {
@@ -260,9 +275,9 @@ public class ReaderThread implements Runnable {
         // You must log in
         if (!isUserLogged()) return "< You must login to do this operation";
         List<Post> filteredPosts = new ArrayList<>();
-        User loggedUserObj = signInService.getStorage().get(loggedUser);
+        User loggedUserObj = storageService.getStorage().get(loggedUser);
         for (String following: loggedUserObj.getFollowings()) {
-            filteredPosts.addAll(signInService.getPostsOf(following));
+            filteredPosts.addAll(storageService.getPostsOf(following));
         }
 
         Collections.shuffle(filteredPosts);
@@ -283,12 +298,12 @@ public class ReaderThread implements Runnable {
         if (!isUserLogged()) return "< You must login to do this operation";
         if (splitReq.length < 3) return "< You're missing some show post arguments";
         // Check if post exists
-        Post post = signInService.getPost(splitReq[1]);
+        Post post = storageService.getPost(splitReq[1]);
         if (post == null) return "< post " + splitReq[1] + " does not exist";
         // You have to check if this post is inside loggedUser feed
         // In other words, the post author has to be a following
 
-        if (!signInService.getStorage().get(loggedUser).existsFollowing(post.getAuthor()))
+        if (!storageService.getStorage().get(loggedUser).existsFollowing(post.getAuthor()))
             return "< This post is not in your feed";
         // Check if you've already voted this post
         if (post.userAlreadyVoted(loggedUser)) return "< you've already voted this post";
@@ -306,7 +321,7 @@ public class ReaderThread implements Runnable {
     private String performShowPost(String[] splitReq) {
         // You don't have to be logged
         // Check if post exists
-        Post post = signInService.getPost(splitReq[2]);
+        Post post = storageService.getPost(splitReq[2]);
         if (post == null) return "< post " + splitReq[2] + " does not exist";
         // Get post object
         StringBuilder stringBuilder = new StringBuilder();
@@ -331,7 +346,7 @@ public class ReaderThread implements Runnable {
         if (content.length() == 0 || content.length() > 500) return "Content must have 1-500 characters";
 
         // We're sure that Post has correct format
-        Post newPost = new Post(signInService.getNewId(), title, content, loggedUser);
+        Post newPost = new Post(storageService.getNewId(), title, content, loggedUser);
 
         // Add post
         String x = addPostToDataStructures(loggedUser, newPost);
@@ -341,8 +356,8 @@ public class ReaderThread implements Runnable {
     }
 
     private String addPostToDataStructures(String loggedUser, Post newPost) {
-        if (signInService.getStorage().get(loggedUser).addPost(newPost.getId()))
-            signInService.addPost(newPost);
+        if (storageService.getStorage().get(loggedUser).addPost(newPost.getId()))
+            storageService.addPost(newPost);
         else return "< Some error occurred";
         return null;
     }
@@ -352,14 +367,14 @@ public class ReaderThread implements Runnable {
         if (!isUserLogged()) return "< You must login to do this operation";
         if (!existsUser(splitReq[1])) return "< " + splitReq[1] + " does not exist";
 
-        User loggedUserObj = signInService.getStorage().get(loggedUser);
+        User loggedUserObj = storageService.getStorage().get(loggedUser);
         String toFollowUser = splitReq[1];
-        User toFollowUserObj = signInService.getStorage().get(toFollowUser);
+        User toFollowUserObj = storageService.getStorage().get(toFollowUser);
 
         // A user cannot follow himself
         if (Objects.requireNonNull(loggedUser).equals(toFollowUser)) return "< You cannot follow yourself!";
 
-        synchronized (signInService.getStorage()) {
+        synchronized (storageService.getStorage()) {
             // If logged user already follows toFollowUser
             if (loggedUserObj.existsFollowing(toFollowUser)) return "< You already follow " + toFollowUser;
 
@@ -384,13 +399,13 @@ public class ReaderThread implements Runnable {
         if (!existsUser(splitReq[1])) return "< " + splitReq[1] + " does not exist";
 
         String toUnfollowUser = splitReq[1];
-        User loggedUserObj = signInService.getStorage().get(loggedUser);
-        User toUnfollowUserObj = signInService.getStorage().get(toUnfollowUser);
+        User loggedUserObj = storageService.getStorage().get(loggedUser);
+        User toUnfollowUserObj = storageService.getStorage().get(toUnfollowUser);
 
         // A user cannot unfollow himself
         if (Objects.requireNonNull(loggedUser).equals(toUnfollowUser)) return "< You cannot unfollow yourself!";
 
-        synchronized(signInService.getStorage()) {
+        synchronized(storageService.getStorage()) {
             // If logged user follows toUnfollowUser
             if (!loggedUserObj.existsFollowing(toUnfollowUser)) return "< You are not a follower of " + toUnfollowUser;
 
@@ -430,10 +445,10 @@ public class ReaderThread implements Runnable {
 
     private synchronized void listFollowing(StringBuilder stringBuilder) {
         setHeaderList(stringBuilder);
-        User loggedUserObj = signInService.getStorage().get(loggedUser);
+        User loggedUserObj = storageService.getStorage().get(loggedUser);
 
         for (String username: loggedUserObj.getFollowings()) {
-            User followingUser = signInService.getStorage().get(username);
+            User followingUser = storageService.getStorage().get(username);
 
             stringBuilder.append("< ").append(followingUser.toString()).append("\n");
         }
@@ -441,10 +456,10 @@ public class ReaderThread implements Runnable {
 
     private synchronized void listUsers(StringBuilder stringBuilder) {
         setHeaderList(stringBuilder);
-        ArrayList<String> loggedUserTags = signInService.getStorage().get(loggedUser).getTags();
+        ArrayList<String> loggedUserTags = storageService.getStorage().get(loggedUser).getTags();
         int founds = 0;
 
-        for (Map.Entry<String, User> user: signInService.getStorage().entrySet()) {
+        for (Map.Entry<String, User> user: storageService.getStorage().entrySet()) {
 
             if (founds == 2) break;
 
@@ -474,10 +489,8 @@ public class ReaderThread implements Runnable {
         stringBuilder.append("< —------------------------------------\n");
     }
 
-    private boolean checkListArgsCount(String[] splitReq) { return splitReq.length < 2; }
-
     private boolean existsUser(String username) {
-        return signInService.getStorage().containsKey(username);
+        return storageService.getStorage().containsKey(username);
     }
 
     private String performLogin(String[] splitReq) throws IOException {
@@ -486,31 +499,31 @@ public class ReaderThread implements Runnable {
             return "< Missing Credentials";
         }
 
-        synchronized (signInService.getLoggedUsers()) {
+        synchronized (storageService.getLoggedUsers()) {
             // Check if exists a user entry inside logged user
-            if (signInService.getLoggedUsers().containsKey(splitReq[1])) {
-                if (signInService.getLoggedUsers().get(splitReq[1]) == client.socket()) {
+            if (storageService.getLoggedUsers().containsKey(splitReq[1])) {
+                if (storageService.getLoggedUsers().get(splitReq[1]) == client.socket()) {
                     return "< You're already logged in";
                 } else {
                     return "< There is a logged in user, you must log out from it";
                 }
             } else {
-                if (signInService.getLoggedUsers().containsValue(client.socket())) {
+                if (storageService.getLoggedUsers().containsValue(client.socket())) {
                     return "< You're already logged in";
                 }
             }
         }
 
-        synchronized (signInService.getStorage()) {
+        synchronized (storageService.getStorage()) {
             // I am sure that the client has sent a correct format request
-            if (signInService.getStorage().containsKey(splitReq[1])) {
+            if (storageService.getStorage().containsKey(splitReq[1])) {
 
-                String password = signInService.getStorage().get(splitReq[1]).getEncryptedPassword();
+                String password = storageService.getStorage().get(splitReq[1]).getEncryptedPassword();
 
                 if (User.hashEncrypt(splitReq[2]).equals(password)) {
                     System.out.println("User accepted");
-                    signInService.addLoggedUser(splitReq[1], client.socket());
-                    return getFollowersListOutput(splitReq[1], signInService.getStorage())
+                    storageService.addLoggedUser(splitReq[1], client.socket());
+                    return getFollowersListOutput(splitReq[1], storageService.getStorage())
                             + "< " + splitReq[1] + " logged in";
                 } else {
                     System.out.println("Wrong Password");
@@ -538,8 +551,8 @@ public class ReaderThread implements Runnable {
 
     private synchronized String performLogout() throws IOException {
         if (isUserLogged()) {
-            String key = getKey(signInService.getLoggedUsers(), client.socket());
-            signInService.removeLoggedUser(key);
+            String key = getKey(storageService.getLoggedUsers(), client.socket());
+            storageService.removeLoggedUser(key);
             return "< " + key + " logged out";
         } else {
             System.out.println("No user logged in");
@@ -548,7 +561,7 @@ public class ReaderThread implements Runnable {
     }
 
     private boolean isUserLogged() {
-        return signInService.getLoggedUsers().containsValue(client.socket());
+        return storageService.getLoggedUsers().containsValue(client.socket());
     }
 
     private <K, V> K getKey(Map<K, V> map, V value) {

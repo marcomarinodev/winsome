@@ -11,12 +11,12 @@ import java.util.Map;
 
 public class RewardCalculator implements Runnable {
 
-    private int interval;
-    private SignInServiceImpl signInService;
+    private final int interval;
+    private final StorageService storageService;
 
-    public RewardCalculator(int interval, SignInServiceImpl signInService) {
+    public RewardCalculator(int interval, StorageService storageService) {
         this.interval = interval;
-        this.signInService = signInService;
+        this.storageService = storageService;
     }
 
     @Override
@@ -35,15 +35,15 @@ public class RewardCalculator implements Runnable {
                 }
 
                 // For every post, calculate the compensation and update
-                synchronized (signInService.getPosts()) {
-                    for (Map.Entry<String, Post> postEntry : signInService.getPosts().entrySet()) {
+                synchronized (storageService.getPosts()) {
+                    for (Map.Entry<String, Post> postEntry : storageService.getPosts().entrySet()) {
                         int newPeopleLikesLogArg = 0;
                         float newPeopleCommentingLogArg = 0;
                         Post post = postEntry.getValue();
                         String author = post.getAuthor();
-                        User authorUser = signInService.getStorage().get(author);
-                        Integer nIterations = post.getRewardIterations() + 1;
-                        double revenue = 0;
+                        User authorUser = storageService.getStorage().get(author);
+                        int nIterations = post.getRewardIterations() + 1;
+                        double revenue;
 
                         // New People Likes Log Arg
                         int numPositiveVotes = post.getRecentPositiveVotes().size();
@@ -78,8 +78,8 @@ public class RewardCalculator implements Runnable {
                 }
 
                 PersistentOperator.persistentWrite(
-                        signInService.getStorage(),
-                        signInService.getPosts(),
+                        storageService.getStorage(),
+                        storageService.getPosts(),
                         "users.json",
                         "posts.json");
 

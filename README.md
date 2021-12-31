@@ -3,12 +3,8 @@ a reWardINg SOcial Media
 ### TODO
 - [ ] (FIX) Use a set instead of a list to keep recent people that commented/voted
   - That's because a user can comment n > 1 times in the update time interval
-- [ ] Configuration file parsing
 - [ ] After log in it is not possible to register, you must log out
-- [ ] Set socket timeout
 - [ ] (FIX) prints
-- [ ] Soft client stop
-- [ ] Soft server stop
 
 ### DONE
 - [X] Remote Procedure Calls to register new users
@@ -37,14 +33,14 @@ a reWardINg SOcial Media
   - [X] UDP Multicast to spread Wallet updates
 - [X] Use URL to get a random seed in order to simulate BTC Trend
 - [X] JSONs are rewritten after a certain delta time to reduce writing overhead
+- [X] Soft server stop
+- [X] Soft client stop
+- [X] Configuration file parsing
 
 ### POLISH
 - [ ] Divide server -> client output in reasonable quantity of pieces
   - [ ] In order to avoid string overflow
-- [ ] Refactor SignInService it has too responsibilities
-- [ ] ReaderThread class has a lot of responsibilities, I have to refactor and make a Helper class
-- [ ] Some check args functions are repeated, It will be better to extract them to methods
+- [X] Some check args functions are repeated, It will be better to extract them to methods
 - [ ] Put synchronized blocks in the right places
-- [ ] Make a better arrangement of responses
-- [ ] Make client operation arguments checking on client side
+- [X] Make a better arrangement of responses
 - [ ] JavaDoc

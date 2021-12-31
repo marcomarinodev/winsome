@@ -28,6 +28,7 @@ public class ServerAsyncImpl extends RemoteObject implements ServerAsyncInterfac
 
     @Override
     public synchronized void unregisterForCallback(NotifyEventInterface clientInterface) throws RemoteException {
+        System.out.println(clients);
         if (clients.remove(clientInterface))
             System.out.println("Client unregistered");
         else
