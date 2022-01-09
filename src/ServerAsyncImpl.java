@@ -13,6 +13,8 @@ public class ServerAsyncImpl extends RemoteObject implements ServerAsyncInterfac
         clients = new ArrayList<>();
     }
 
+    // This function registers for callback a new client with the precondition that the client in parameter
+    // is not already registered for callback
     @Override
     public synchronized void registerForCallback(NotifyEventInterface clientInterface) throws RemoteException {
         if (!clients.contains(clientInterface)) {
@@ -21,6 +23,8 @@ public class ServerAsyncImpl extends RemoteObject implements ServerAsyncInterfac
         }
     }
 
+    // This function unregisters for callback a new client with the precondition that the client in parameter
+    // is registered for the callback
     @Override
     public synchronized void unregisterForCallback(NotifyEventInterface clientInterface) throws RemoteException {
         System.out.println(clients);
@@ -30,10 +34,23 @@ public class ServerAsyncImpl extends RemoteObject implements ServerAsyncInterfac
             System.out.println("Unable to unregister client");
     }
 
+    /**
+     * RMI callback to update new incoming follower
+     * @param newFollower incoming follower
+     * @param newFollowerTagsStr incoming follower's tags
+     * @param receiver
+     * @throws RemoteException
+     */
     public void updateNewFollower(String newFollower, String newFollowerTagsStr, String receiver) throws RemoteException {
         doFollowCallback(newFollower, newFollowerTagsStr, receiver);
     }
 
+    /**
+     * RMI callback to say that exFollower stopped following you
+     * @param exFollower old follower
+     * @param receiver
+     * @throws RemoteException
+     */
     public void updateExFollower(String exFollower, String receiver) throws RemoteException {
         doUnfollowCallback(exFollower, receiver);
     }

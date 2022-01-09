@@ -18,32 +18,55 @@ import java.util.concurrent.ExecutorService;
 
 public class CustomServer {
 
+    // server tcp address
     private String serverAddress;
+    // udp multicast address
     private String multicastAddress = "239.255.32.32";
+    // rmi notification port
     private int notificationPort;
+    // udp multicast port
     private int multicastPort = 33333;
+    // server tcp port
     private int tcpPort;
+    // rmi hostname
     private String RMIHostname;
+    // rmi port
     private int RMIPort;
+    // reward and auto-save interval
     private int rewardRate;
+    // author's earning percentage
     private double authorPercentage;
+    // async server name (notifications)
     private String asyncServerName;
+    // loggedUsers, storage, posts object
     private StorageService storageService;
+    // server's thread pool
     private final ExecutorService pool;
+    // async server
     private final ServerAsyncImpl asyncServer;
     private ServerAsyncInterface stub;
+    // selector
+    Selector selector;
 
     public CustomServer(ExecutorService pool) throws RemoteException, AlreadyBoundException {
         this.pool = pool;
         this.asyncServer = new ServerAsyncImpl();
     }
 
+    /**
+     * configure server
+     * @param configPathname configuration file pathname
+     * @throws IOException
+     * @throws NonExistingConfigParam
+     */
     public void config(String configPathname) throws IOException, NonExistingConfigParam {
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(configPathname))) {
             String line;
 
+            // scanning through the file lines
             while ((line = bufferedReader.readLine()) != null) {
                 line = line.strip();
+
                 if (!line.startsWith("#") && !line.equals("")) {
 
                     if (line.startsWith("SERVER"))
@@ -72,12 +95,19 @@ public class CustomServer {
         }
     }
 
+    /**
+     * setup storage service and registration to remote procedure calls
+     */
     public void setStorageService() {
         StorageService storageService = new StorageService();
         registrationRPC(storageService);
         this.storageService = storageService;
     }
 
+    /**
+     * it handles the registration function with RMI
+     * @param storageService
+     */
     private void registrationRPC(StorageService storageService) {
         try {
             // Export the object
@@ -96,6 +126,9 @@ public class CustomServer {
         }
     }
 
+    /**
+     * perform shutdown
+     */
     public void addShutdownHook() {
         Runtime.getRuntime().addShutdownHook(
                 new Thread(
@@ -105,6 +138,9 @@ public class CustomServer {
                                     this.storageService.posts,
                                     "users.json",
                                     "posts.json");
+
+                            pool.shutdown();
+
                             System.out.println("Server is closing...");
                         }
                 )
@@ -124,6 +160,7 @@ public class CustomServer {
         try (ServerSocketChannel serverSocket = ServerSocketChannel.open();
              Selector selector = Selector.open()) {
 
+            this.selector = selector;
             // Binding socket to port
             serverSocket.bind(new InetSocketAddress(tcpPort));
             System.out.println("SERVER IS READY ON: " + tcpPort);

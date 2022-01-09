@@ -8,6 +8,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class PersistentOperator {
 
+    /**
+     * reading from usersFilename and postsFilename
+     * @param usersFilename users json filename
+     * @param postsFilename posts json filename
+     * @return storage and posts Maps
+     */
     public static synchronized Pair<Map<String, User>, Map<String, Post>> persistentRead(
             String usersFilename,
             String postsFilename) {
@@ -45,6 +51,13 @@ public class PersistentOperator {
         }
     }
 
+    /**
+     * write to users and posts json from storage and post data structures
+     * @param storage map where key is username and value is a user object
+     * @param posts map where key is postId and value is a post object
+     * @param usersFilename users json filename
+     * @param postsFilename posts json filename
+     */
     public static synchronized void persistentWrite(Map<String, User> storage,
                                        Map<String, Post> posts,
                                        String usersFilename,

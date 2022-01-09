@@ -12,6 +12,7 @@ public class NotifyEventImpl extends RemoteObject implements NotifyEventInterfac
         this.followers = followers;
     }
 
+    // Add follower when notified from server
     @Override
     public void notifyFollow(String follower, String followerTagsStr, String username) throws RemoteException {
         if (this.username.equals(username)) {
@@ -20,6 +21,7 @@ public class NotifyEventImpl extends RemoteObject implements NotifyEventInterfac
         }
     }
 
+    // remove follower when notified from server
     @Override
     public void notifyUnfollow(String follower, String username) throws RemoteException {
         if (this.username.equals(username)) {
