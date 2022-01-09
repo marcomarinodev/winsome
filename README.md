@@ -1,10 +1,5 @@
 # winsome
 a reWardINg SOcial Media
-### TODO
-- [ ] (FIX) Use a set instead of a list to keep recent people that commented/voted
-  - That's because a user can comment n > 1 times in the update time interval
-- [ ] After log in it is not possible to register, you must log out
-- [ ] (FIX) prints
 
 ### DONE
 - [X] Remote Procedure Calls to register new users
@@ -41,6 +36,6 @@ a reWardINg SOcial Media
 - [ ] Divide server -> client output in reasonable quantity of pieces
   - [ ] In order to avoid string overflow
 - [X] Some check args functions are repeated, It will be better to extract them to methods
-- [ ] Put synchronized blocks in the right places
+- [X] Put synchronized blocks in the right places
 - [X] Make a better arrangement of responses
 - [ ] JavaDoc

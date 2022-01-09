@@ -1,0 +1,188 @@
+[
+{
+  "username": "peter1",
+  "encryptedPassword": "e57e4b1f198ce52179c79d238ef91ec35a502ef871685d8e7ae1358511a1626f",
+  "tags": [
+    "swift"
+  ],
+  "postIds": [
+    "4"
+  ],
+  "followers": [],
+  "followings": [
+    "marco1",
+    "ema1",
+    "robert1"
+  ],
+  "totalCompensation": 0.7385336865315101,
+  "transactions": [
+    {
+      "left": "0.008664339756999316",
+      "right": "09-01-2022"
+    },
+    {
+      "left": "0.020792806805200594",
+      "right": "09-01-2022"
+    },
+    {
+      "left": "0.16479184330021646",
+      "right": "09-01-2022"
+    },
+    {
+      "left": "0.1039720770839918",
+      "right": "09-01-2022"
+    },
+    {
+      "left": "0.06757662211690192",
+      "right": "09-01-2022"
+    },
+    {
+      "left": "0.2687639203842082",
+      "right": "09-01-2022 12:02:17"
+    },
+    {
+      "left": "0.1039720770839918",
+      "right": "09-01-2022 12:02:37"
+    }
+  ]
+},
+{
+  "username": "andre1",
+  "encryptedPassword": "e57e4b1f198ce52179c79d238ef91ec35a502ef871685d8e7ae1358511a1626f",
+  "tags": [
+    "SE",
+    "swift",
+    "history"
+  ],
+  "postIds": [],
+  "followers": [],
+  "followings": [],
+  "totalCompensation": 0.0,
+  "transactions": []
+},
+{
+  "username": "linda1",
+  "encryptedPassword": "e57e4b1f198ce52179c79d238ef91ec35a502ef871685d8e7ae1358511a1626f",
+  "tags": [
+    "history"
+  ],
+  "postIds": [],
+  "followers": [
+    "marco1"
+  ],
+  "followings": [
+    "marco1"
+  ],
+  "totalCompensation": 0.008664339756999316,
+  "transactions": [
+    {
+      "left": "0.008664339756999316",
+      "right": "09-01-2022"
+    }
+  ]
+},
+{
+  "username": "ema1",
+  "encryptedPassword": "e57e4b1f198ce52179c79d238ef91ec35a502ef871685d8e7ae1358511a1626f",
+  "tags": [
+    "swift"
+  ],
+  "postIds": [],
+  "followers": [
+    "peter1"
+  ],
+  "followings": [
+    "marco1"
+  ],
+  "totalCompensation": 0.43355576368442467,
+  "transactions": [
+    {
+      "left": "0.16479184330021646",
+      "right": "09-01-2022"
+    },
+    {
+      "left": "0.2687639203842082",
+      "right": "09-01-2022 12:02:17"
+    }
+  ]
+},
+{
+  "username": "marco1",
+  "encryptedPassword": "e57e4b1f198ce52179c79d238ef91ec35a502ef871685d8e7ae1358511a1626f",
+  "tags": [
+    "SE",
+    "swift"
+  ],
+  "postIds": [
+    "2",
+    "6",
+    "7"
+  ],
+  "followers": [
+    "peter1",
+    "linda1",
+    "ema1"
+  ],
+  "followings": [
+    "linda1"
+  ],
+  "totalCompensation": 2.755092176603513,
+  "transactions": [
+    {
+      "left": "0.04043358553266347",
+      "right": "09-01-2022"
+    },
+    {
+      "left": "0.04851654921213472",
+      "right": "09-01-2022"
+    },
+    {
+      "left": "0.7690286020676768",
+      "right": "09-01-2022 11:45:04"
+    },
+    {
+      "left": "0.24260151319598083",
+      "right": "09-01-2022 11:45:24"
+    },
+    {
+      "left": "0.15767878493943782",
+      "right": "09-01-2022 11:46:04"
+    },
+    {
+      "left": "1.2542316284596384",
+      "right": "09-01-2022 12:02:17"
+    },
+    {
+      "left": "0.24260151319598083",
+      "right": "09-01-2022 12:02:37"
+    }
+  ]
+},
+{
+  "username": "robert1",
+  "encryptedPassword": "e57e4b1f198ce52179c79d238ef91ec35a502ef871685d8e7ae1358511a1626f",
+  "tags": [
+    "history",
+    "food"
+  ],
+  "postIds": [],
+  "followers": [
+    "peter1"
+  ],
+  "followings": [],
+  "totalCompensation": 0.0,
+  "transactions": []
+},
+{
+  "username": "andrew1",
+  "encryptedPassword": "e57e4b1f198ce52179c79d238ef91ec35a502ef871685d8e7ae1358511a1626f",
+  "tags": [
+    "food"
+  ],
+  "postIds": [],
+  "followers": [],
+  "followings": [],
+  "totalCompensation": 0.0,
+  "transactions": []
+}
+]
