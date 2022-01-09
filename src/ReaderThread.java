@@ -53,9 +53,12 @@ public class ReaderThread implements Runnable {
         String result = "";
 
         try {
+            // retrieving first word as operation from request
             String[] splitReq = getOperation();
             String operation = splitReq[0];
             System.out.println("Current Request: " + request);
+
+            // switching operation
             switch (operation) {
                 case "login" -> {
                     System.out.println("Login request");
@@ -113,6 +116,8 @@ public class ReaderThread implements Runnable {
                     System.out.println("Exit request");
                     synchronized (storageService.loggedUsers) {
                         if (isUserLogged()) {
+                            // I'm going to remove from loggedUser map the entry
+                            // with the client that wants to exit
                             String key = getKey(storageService.loggedUsers, client.socket());
                             storageService.removeLoggedUser(key);
                         }
@@ -125,7 +130,9 @@ public class ReaderThread implements Runnable {
             e.printStackTrace();
         }
 
-        // I need to say to selector to re-listen to this socket
+        // I want to write result variable as response through another thread,
+        // so I'm going to attach the result and set OP_WRITE to send the response
+        // through the socket channel
         key.attach(result);
 
         try {
@@ -134,16 +141,23 @@ public class ReaderThread implements Runnable {
             e.printStackTrace();
         }
         selector.wakeup();
-        System.out.println("End ReaderThread");
     }
 
+    /**
+     * perform both wallet and wallet btc
+     * @param splitReq request fields
+     * @return response string
+     */
     private String performWalletOperation(String[] splitReq) {
         if (!isUserLogged()) return "< You must login to do this operation";
         User loggedUserObj = storageService.storage.get(loggedUser);
 
+        // only 'wallet' operation
         if (splitReq.length == 1) {
+            // print total compensation
             StringBuilder stringBuilder = new StringBuilder("< you have " + loggedUserObj.getTotalCompensation() + " wincoins\n");
 
+            // print transactions
             synchronized (storageService.storage) {
                 for (Pair<String, String> transaction : loggedUserObj.getTransactions()) {
                     stringBuilder.append("< coins: " + transaction.getLeft()
@@ -160,24 +174,31 @@ public class ReaderThread implements Runnable {
             // set default encoding
             String encoding = "ISO-8859-1";
             URL u = new URL(randomURL);
+
+            // open connection with the url
             URLConnection uc = u.openConnection();
             String contentType = uc.getContentType();
-            System.out.println("contenttype" + contentType);
+
             int encodingStart = contentType.indexOf("charset=");
             if (encodingStart != -1) {
                 encoding = contentType.substring(encodingStart + 8);
             }
-            System.out.println("encoding"+encoding);
+
             InputStream in = new BufferedInputStream(uc.getInputStream());
             Reader r = new InputStreamReader(in, encoding);
             int c;
             StringBuilder stringBuilder = new StringBuilder();
+
+            // reading content
             while ((c = r.read()) != -1) {
                 stringBuilder.append((char) c);
             }
             r.close();
+
+            // make btc conversion
             double btcValue = Double.parseDouble(stringBuilder.toString());
             return "< " + btcValue * loggedUserObj.getTotalCompensation() + " BTC";
+
         } catch (MalformedURLException ex) {
             System.err.println(randomURL + " is not a parseable URL");
         } catch (UnsupportedEncodingException ex) {
@@ -188,18 +209,27 @@ public class ReaderThread implements Runnable {
             System.err.println(ex);
         }
 
+        // default case
         return "";
     }
 
+    /**
+     * perform comment idPost content
+     * @param request request fields
+     * @return response string
+     */
     private String performComment(String request) {
 
         String[] splitReq = request.split(" ");
+
+        // extract comment in ""
         String comment = NIOHelper.removeLastChar(request.split(" \"")[1]);
 
+        // comment condition
         if (comment.length() == 0 || comment.length() > 20) return "< Comment must have 1-20 characters";
-
         if (!isUserLogged()) return "< You must login to do this operation";
 
+        // searching and comment post
         synchronized (storageService.posts) {
             // Check if post exists
             Post post = storageService.getPost(splitReq[1]);
@@ -211,6 +241,11 @@ public class ReaderThread implements Runnable {
         return "< You just commented successfully";
     }
 
+    /**
+     * perform rewin idPost
+     * @param splitReq request fields
+     * @return response string
+     */
     private String performRewin(String[] splitReq) {
         if (!isUserLogged()) return "< You must login to do this operation";
 
@@ -233,6 +268,11 @@ public class ReaderThread implements Runnable {
         return "< Succesfully post rewin";
     }
 
+    /**
+     * perform delete idPost
+     * @param splitReq request fields
+     * @return response string
+     */
     private String performDelete(String[] splitReq) {
         if (!isUserLogged()) return "< You must login to do this operation";
 
@@ -258,9 +298,19 @@ public class ReaderThread implements Runnable {
         return "< Post " + splitReq[1] + " successfully deleted";
     }
 
+    /**
+     * perform show blog
+     * @return response string composed by all of logged user posts
+     */
     private String performBlog() {
         if (!isUserLogged()) return "< You must login to do this operation";
-        List<Post> posts = storageService.getPostsOf(loggedUser);
+
+        // get logged user posts
+        List<Post> posts;
+        synchronized (storageService.posts) {
+             posts = storageService.getPostsOf(loggedUser);
+        }
+
         StringBuilder stringBuilder = new StringBuilder();
 
         for (Post post: posts) {
@@ -275,6 +325,11 @@ public class ReaderThread implements Runnable {
         return stringBuilder.toString();
     }
 
+    /**
+     * this function acts as a router: it routes show post and show feed to their handlers
+     * @param splitReq request fields
+     * @return show post or show feed response, response error otherwise
+     */
     private String performShowOperation(String[] splitReq) {
         if (splitReq[1].equals("post")) {
             return performShowPost(splitReq);
@@ -284,21 +339,28 @@ public class ReaderThread implements Runnable {
         else return "< " + splitReq[1] + " is not a show option";
     }
 
+    /**
+     * perform show feed
+     * @return response composed by all posts of his followings
+     */
     private String performShowFeed() {
         // You must log in
         if (!isUserLogged()) return "< You must login to do this operation";
         List<Post> filteredPosts = new ArrayList<>();
         User loggedUserObj = storageService.storage.get(loggedUser);
 
+        // get followings
         synchronized (storageService.posts) {
             for (String following: loggedUserObj.getFollowings()) {
                 filteredPosts.addAll(storageService.getPostsOf(following));
             }
         }
 
+        // mix up posts
         Collections.shuffle(filteredPosts);
         StringBuilder stringBuilder = new StringBuilder();
 
+        // print them out
         for (Post post: filteredPosts) {
             // id author title
             stringBuilder.append("< " + post.getId() +
@@ -309,6 +371,11 @@ public class ReaderThread implements Runnable {
         return stringBuilder.toString();
     }
 
+    /**
+     * perform rate idPost 1/-1
+     * @param splitReq request fields
+     * @return response as successful rate or not
+     */
     private String performRatePost(String[] splitReq) {
         // You have to be logged
         if (!isUserLogged()) return "< You must login to do this operation";
@@ -337,6 +404,11 @@ public class ReaderThread implements Runnable {
         return "< You've rated post " + splitReq[2];
     }
 
+    /**
+     * perform show post idPost
+     * @param splitReq request fields
+     * @return response as post to string
+     */
     private String performShowPost(String[] splitReq) {
         // You don't have to be logged
         // Check if post exists
@@ -353,6 +425,11 @@ public class ReaderThread implements Runnable {
         return stringBuilder.toString();
     }
 
+    /**
+     * perform post title content
+     * @param request request fields
+     * @return response as post added successfully or not
+     */
     private String performAddPost(String request) {
         if (!isUserLogged()) return "< You must login to do this operation";
         String[] titleContent = request.split(" \"");
@@ -368,13 +445,18 @@ public class ReaderThread implements Runnable {
         Post newPost = new Post(storageService.getNewId(), title, content, loggedUser);
 
         // Add post
-        String x = addPostToDataStructures(loggedUser, newPost);
+        String x = addPostToDataStructures(newPost);
         if (x != null) return x;
 
         return "< Created new post (id=" + newPost.getId() + ")";
     }
 
-    private String addPostToDataStructures(String loggedUser, Post newPost) {
+    /**
+     * add a post to data structures
+     * @param newPost post to add
+     * @return null if post insertion has success, a response string error otherwise
+     */
+    private String addPostToDataStructures(Post newPost) {
         synchronized (storageService.storage) {
             if (storageService.storage.get(loggedUser).addPost(newPost.getId()))
                 storageService.addPost(newPost);
@@ -383,7 +465,11 @@ public class ReaderThread implements Runnable {
         return null;
     }
 
-
+    /**
+     * perform follow username
+     * @param splitReq request fields
+     * @return response string: successful operation or not
+     */
     private String performFollow(String[] splitReq) {
         if (!isUserLogged()) return "< You must login to do this operation";
         if (!existsUser(splitReq[1])) return "< " + splitReq[1] + " does not exist";
@@ -415,6 +501,11 @@ public class ReaderThread implements Runnable {
         return "< now you follow " + toFollowUser;
     }
 
+    /**
+     * perform unfollow username
+     * @param splitReq request fields
+     * @return response string: successful operation or not
+     */
     private String performUnfollow(String[] splitReq) {
         if (!isUserLogged()) return "< You must login in order to do this operation";
         if (!existsUser(splitReq[1])) return "< " + splitReq[1] + " does not exist";
@@ -446,6 +537,12 @@ public class ReaderThread implements Runnable {
         return "< now you're not following " + toUnfollowUser;
     }
 
+    /**
+     * this function is a router for list operation
+     * @param splitReq request fields
+     * @return response string: successful operation or not
+     * @throws IOException
+     */
     private String performListOperation(String[] splitReq) throws IOException {
         if (!isUserLogged()) return "< You must login in order to do this operation";
 
@@ -464,17 +561,28 @@ public class ReaderThread implements Runnable {
         return stringBuilder.toString();
     }
 
-    private synchronized void listFollowing(StringBuilder stringBuilder) {
+    /**
+     * perform list following. It modifies the stringBuilder passed by parameter
+     * @param stringBuilder builder
+     */
+    private void listFollowing(StringBuilder stringBuilder) {
         setHeaderList(stringBuilder);
-        User loggedUserObj = storageService.storage.get(loggedUser);
 
-        for (String username: loggedUserObj.getFollowings()) {
-            User followingUser = storageService.storage.get(username);
+        synchronized (storageService.storage) {
+            User loggedUserObj = storageService.storage.get(loggedUser);
 
-            stringBuilder.append("< ").append(followingUser.toString()).append("\n");
+            for (String username : loggedUserObj.getFollowings()) {
+                User followingUser = storageService.storage.get(username);
+
+                stringBuilder.append("< ").append(followingUser.toString()).append("\n");
+            }
         }
     }
 
+    /**
+     * perform list users. It modifies stringBuilder passed by parameter
+     * @param stringBuilder builder
+     */
     private void listUsers(StringBuilder stringBuilder) {
         setHeaderList(stringBuilder);
         ArrayList<String> loggedUserTags = storageService.storage.get(loggedUser).getTags();
@@ -507,15 +615,25 @@ public class ReaderThread implements Runnable {
         stringBuilder.append("< \t...");
     }
 
+    /**
+     * @param stringBuilder builder
+     */
     private void setHeaderList(StringBuilder stringBuilder) {
         stringBuilder.append("< \tUser\t|\tTag\n");
         stringBuilder.append("< —------------------------------------\n");
     }
 
+    // This function should be moved inside storage service class
     private boolean existsUser(String username) {
         return storageService.storage.containsKey(username);
     }
 
+    /**
+     * perform login username password
+     * @param splitReq request fields
+     * @return response string: success or not
+     * @throws IOException
+     */
     private String performLogin(String[] splitReq) throws IOException {
 
         if (splitReq.length < 3) {
@@ -557,19 +675,27 @@ public class ReaderThread implements Runnable {
         }
     }
 
-    private synchronized String getFollowersListOutput(String username, Map<String, User> storage) {
+    private String getFollowersListOutput(String username, Map<String, User> storage) {
         StringBuilder stringBuilder = new StringBuilder();
-        // You already know that user is registered
-        User user = storage.get(username);
 
-        for (String follower: user.getFollowers()) {
-            stringBuilder.append(follower).append("/");
-            stringBuilder.append(storage.get(follower).tagsToString()).append("//");
+        synchronized (storageService.storage) {
+            // You already know that user is registered
+            User user = storage.get(username);
+
+            for (String follower : user.getFollowers()) {
+                stringBuilder.append(follower).append("/");
+                stringBuilder.append(storage.get(follower).tagsToString()).append("//");
+            }
         }
 
         return stringBuilder.toString();
     }
 
+    /**
+     * perform logout
+     * @return repsonse string: logout success or not
+     * @throws IOException
+     */
     private String performLogout() throws IOException {
         if (isUserLogged()) {
             synchronized (storageService.loggedUsers) {

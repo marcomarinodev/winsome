@@ -9,9 +9,13 @@ import java.util.Set;
 
 public class RewardCalculator implements Runnable {
 
+    // reward and Autosave interval
     private final int interval;
+    // storage service to get users and posts
     private final StorageService storageService;
+    // author earning percentage
     private final double authorPercentage;
+    // multicast address and port
     private final String multicastAddress;
     private final int multicastPort;
 
@@ -26,9 +30,8 @@ public class RewardCalculator implements Runnable {
 
     @Override
     public void run() {
+        // Creating a multicast connection
         try (DatagramSocket multiSocket = new DatagramSocket()) {
-            System.out.println("MULTICAST: " + multicastAddress);
-            System.out.println("MULTIPORT: " + multicastPort);
             InetAddress group = InetAddress.getByName(multicastAddress);
             if (!group.isMulticastAddress()) {
                 throw new IllegalArgumentException("(RewardCalculator) Invalid multicast address: "
@@ -69,7 +72,7 @@ public class RewardCalculator implements Runnable {
 
                         revenue = (Math.log(newPeopleLikesLogArg + 1) + Math.log(newPeopleCommentingLogArg + 1)) / nIterations;
 
-                        // we have to split: 70% of revenues to author and other 30% to curators
+                        // we have to split; i.e 70% of revenues to author and other 30% to curators
                         double authorEarning = revenue * (authorPercentage/100);
                         double curatorsEarning = revenue * ((100 - authorPercentage)/100);
 
@@ -104,6 +107,7 @@ public class RewardCalculator implements Runnable {
                     }
                 }
 
+                // Saving users and posts state
                 PersistentOperator.persistentWrite(
                         storageService.storage,
                         storageService.posts,
