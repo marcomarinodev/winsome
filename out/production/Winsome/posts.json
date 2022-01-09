@@ -1,3 +1,131 @@
 [
-
+{
+  "id": "2",
+  "title": "Hello",
+  "content": "My first post",
+  "author": "marco1",
+  "positiveVotes": [
+    "peter1"
+  ],
+  "negativeVotes": [
+    "linda1"
+  ],
+  "rewins": [
+    "3"
+  ],
+  "comments": [
+    {
+      "left": "linda1",
+      "right": "bad post"
+    },
+    {
+      "left": "peter1",
+      "right": "great!"
+    },
+    {
+      "left": "peter1",
+      "right": "wow!"
+    }
+  ],
+  "rewardIterations": 175,
+  "recentPositiveVotes": [],
+  "recentNegativeVotes": [],
+  "recentComments": {}
+},
+{
+  "id": "3",
+  "title": "(rew) Hello",
+  "content": "My first post",
+  "author": "linda1",
+  "positiveVotes": [],
+  "negativeVotes": [],
+  "rewins": [],
+  "comments": [],
+  "rewardIterations": 175,
+  "recentPositiveVotes": [],
+  "recentNegativeVotes": [],
+  "recentComments": {}
+},
+{
+  "id": "4",
+  "title": "I\u0027m Peter",
+  "content": "I am peter",
+  "author": "peter1",
+  "positiveVotes": [],
+  "negativeVotes": [],
+  "rewins": [
+    "5"
+  ],
+  "comments": [],
+  "rewardIterations": 173,
+  "recentPositiveVotes": [],
+  "recentNegativeVotes": [],
+  "recentComments": {}
+},
+{
+  "id": "5",
+  "title": "(rew) I\u0027m Peter",
+  "content": "I am peter",
+  "author": "linda1",
+  "positiveVotes": [],
+  "negativeVotes": [],
+  "rewins": [],
+  "comments": [],
+  "rewardIterations": 172,
+  "recentPositiveVotes": [],
+  "recentNegativeVotes": [],
+  "recentComments": {}
+},
+{
+  "id": "6",
+  "title": "Hello again",
+  "content": "Another post, Demar",
+  "author": "marco1",
+  "positiveVotes": [
+    "ema1",
+    "peter1"
+  ],
+  "negativeVotes": [],
+  "rewins": [],
+  "comments": [
+    {
+      "left": "peter1",
+      "right": "Wonderful"
+    },
+    {
+      "left": "peter1",
+      "right": "wow"
+    }
+  ],
+  "rewardIterations": 147,
+  "recentPositiveVotes": [],
+  "recentNegativeVotes": [],
+  "recentComments": {}
+},
+{
+  "id": "7",
+  "title": "F1 Race",
+  "content": "Verstappen wins Monaco GP",
+  "author": "marco1",
+  "positiveVotes": [
+    "ema1",
+    "peter1"
+  ],
+  "negativeVotes": [],
+  "rewins": [],
+  "comments": [
+    {
+      "left": "ema1",
+      "right": "Go VER"
+    },
+    {
+      "left": "peter1",
+      "right": "VER is hero"
+    }
+  ],
+  "rewardIterations": 138,
+  "recentPositiveVotes": [],
+  "recentNegativeVotes": [],
+  "recentComments": {}
+}
 ]

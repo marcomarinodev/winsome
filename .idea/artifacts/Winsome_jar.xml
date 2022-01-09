@@ -1,0 +1,12 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Winsome:jar">
+    <output-path>$PROJECT_DIR$/src</output-path>
+    <root id="archive" name="sever.jar">
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/out/META-INF/MANIFEST.MF" />
+      </element>
+      <element id="module-output" name="Winsome" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/gson-2.8.9.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

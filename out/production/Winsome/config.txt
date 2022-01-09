@@ -1,7 +1,5 @@
 # Server address
 SERVER: 127.0.0.1
-# Multicast address
-MULTICAST: 224.0.3.0
 
 # Ports
 NOTIFICATION_PORT: 6230
@@ -17,4 +15,5 @@ ASYNC_SERVER: AsyncServer
 # Reward interval
 REW_INTERVAL: 20
 
-AUTOMATIC_SAVE: 5000
+# Author Reward Percentage
+AUTHOR_PERC: 70.0

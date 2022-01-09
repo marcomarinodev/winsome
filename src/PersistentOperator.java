@@ -47,7 +47,7 @@ public class PersistentOperator {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            return new Pair(storage, posts);
+            return new Pair<>(storage, posts);
         }
     }
 

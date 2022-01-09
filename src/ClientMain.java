@@ -107,6 +107,28 @@ public class ClientMain {
         if (operation.equals("wallet"))
             return handleWallet(client, args);
 
+        if (operation.equals("help")) {
+            System.out.println(
+                    "=> register <username> <password> <tags>\n" +
+                            "=> login <username> <password>\n" +
+                            "=> logout\n" +
+                            "=> list users/followers/following\n" +
+                            "=> show feed\n" +
+                            "=> show post <id>\n" +
+                            "=> follow <username>\n" +
+                            "=> unfollow <username>\n" +
+                            "=> blog\n" +
+                            "=> post <title> <content>\n" +
+                            "=> delete <postId>\n" +
+                            "=> rewin <postId>\n" +
+                            "=> rate <postId> <vote>\n" +
+                            "=> comment <postId> <comment>\n" +
+                            "=> wallet\n" +
+                            "=> wallet btc\n"
+            );
+            return false;
+        }
+
         System.out.println("< " + operation + " is not a permitted operation");
 
         return false;
@@ -219,6 +241,8 @@ public class ClientMain {
             }
 
             walletReceiver.start();
+        } else {
+            loggedUsername = "";
         }
 
         return false;
