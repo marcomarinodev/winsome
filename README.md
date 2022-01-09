@@ -1,6 +1,10 @@
 # winsome
 a reWardINg SOcial Media
 
+### POLISH
+- [ ] Divide server -> client output in reasonable quantity of pieces
+  - [ ] In order to avoid string overflow
+
 ### DONE
 - [X] Remote Procedure Calls to register new users
 - [X] NIO + Thread Pool to execute request and send responses
@@ -31,11 +35,7 @@ a reWardINg SOcial Media
 - [X] Soft server stop
 - [X] Soft client stop
 - [X] Configuration file parsing
-
-### POLISH
-- [ ] Divide server -> client output in reasonable quantity of pieces
-  - [ ] In order to avoid string overflow
 - [X] Some check args functions are repeated, It will be better to extract them to methods
 - [X] Put synchronized blocks in the right places
 - [X] Make a better arrangement of responses
-- [ ] JavaDoc
+- [X] JavaDoc
